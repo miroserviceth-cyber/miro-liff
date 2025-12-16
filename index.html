@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Member</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto; margin:0; background:#f5f7fb;}
+    .wrap{max-width:420px; margin:0 auto; padding:16px;}
+    .card{background:#fff; border-radius:16px; padding:16px; box-shadow:0 6px 18px rgba(0,0,0,.06)}
+    .title{font-size:18px; font-weight:700; color:#0b2b5a; margin:0 0 8px}
+    .muted{color:#6b7280; font-size:13px}
+    .btn{width:100%; border:0; border-radius:12px; padding:12px 14px; font-weight:700; margin-top:10px; background:#0b63ce; color:#fff}
+    .row{display:flex; gap:10px; margin-top:12px}
+    .mini{flex:1; background:#f3f6ff; border-radius:14px; padding:12px}
+    .big{font-size:22px; font-weight:800; color:#0b2b5a; margin-top:4px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <p class="title">บัตรสมาชิก</p>
+      <div class="muted" id="status">กำลังโหลด...</div>
+
+      <div class="row">
+        <div class="mini">
+          <div class="muted">แต้มแลกของ</div>
+          <div class="big" id="redeemPts">-</div>
+          <div class="muted">1 แต้ม = 1 บาท</div>
+        </div>
+        <div class="mini">
+          <div class="muted">แต้มสะสมเลเวล</div>
+          <div class="big" id="levelPts">-</div>
+          <div class="muted">ไม่มีวันหมดอายุ</div>
+        </div>
+      </div>
+
+      <button class="btn" id="btnProfile">แสดงชื่อจาก LINE</button>
+    </div>
+  </div>
+
+  <script>
+    const LIFF_ID = "PUT_YOUR_LIFF_ID_HERE";
+
+    async function main(){
+      try{
+        await liff.init({ liffId: LIFF_ID });
+
+        if(!liff.isLoggedIn()){
+          // ให้ LIFF พา login เอง (ลูกค้าไม่ต้องพิมพ์)
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        document.getElementById("status").innerText =
+          `สวัสดีคุณ ${profile.displayName} (ดึงจาก LINE สำเร็จ)`;
+
+        // เดโมแต้มก่อน (STEP ถัดไปค่อยดึงจาก Google Sheet)
+        document.getElementById("redeemPts").innerText = "0";
+        document.getElementById("levelPts").innerText = "0";
+
+        document.getElementById("btnProfile").onclick = () => {
+          alert("ชื่อ: " + profile.displayName + "\nUserID: " + profile.userId);
+        };
+
+      }catch(e){
+        document.getElementById("status").innerText = "เปิด LIFF ไม่สำเร็จ: " + e;
+      }
+    }
+    main();
+  </script>
+</body>
+</html>
