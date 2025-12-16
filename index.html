@@ -145,6 +145,21 @@ async function main() {
     document.getElementById("status").innerText =
       "เปิด LIFF ไม่สำเร็จ: " + e;
   }
+  function formatThaiDate(isoDate) {
+  if (!isoDate) return "-";
+
+  const d = new Date(isoDate);
+  const months = [
+    "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+    "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+  ];
+
+  const day = d.getDate();
+  const month = months[d.getMonth()];
+  const year = d.getFullYear() + 543;
+
+  return `${day} ${month} ${year}`;
+  }
 }
 main();
 </script>
