@@ -55,20 +55,80 @@ async function main() {
 
     const profile = await liff.getProfile();
     const userId = profile.userId;
+    const displayName = profile.displayName;
 
-    // เรียก Google Sheet
+    // 1) เรียก MEMBER (สมัคร/ดึงข้อมูลสมาชิก)
     const res = await fetch(
-      `${API_URL}?action=member&userId=${userId}`
+      `${API_URL}?action=member&userId=${userId}&name=${encodeURIComponent(displayName)}`
     );
     const data = await res.json();
 
-    document.getElementById("status").innerText =
-      `สวัสดีคุณ ${data.name}`;
+    // แสดงข้อความต้อนรับ
+    document.getElementById("status").innerText = `สวัสดีคุณ ${data.name}`;
 
-    // ตอนนี้ยังโชว์ 0 ก่อน (STEP 7 จะดึงแต้มจริง)
-    document.getElementById("redeemPts").innerText = "0";
-    document.getElementById("levelPts").innerText = data.total_spend;
+    // 2) เรียก WALLET (แต้ม + คูปอง)
+    const walletRes = await fetch(
+      `${API_URL}?action=wallet&memberId=${data.member_id}`
+    );
+    const wallet = await walletRes.json();
 
+    // แสดงแต้ม 2 ประเภท
+    document.getElementById("redeemPts").innerText = wallet.points.redeem || 0;
+    document.getElementById("levelPts").innerText = wallet.points.level || 0;
+
+    // 3) แสดงคูปองในหน้า Member
+    // สร้างหัวข้อ "คูปองของคุณ" ไว้ใต้การ์ดหลัก
+    let couponSection = document.getElementById("couponSection");
+
+    // ถ้ายังไม่มี section นี้ ให้สร้างใหม่
+    if (!couponSection) {
+      couponSection = document.createElement("div");
+      couponSection.id = "couponSection";
+      couponSection.style.marginTop = "12px";
+
+      const title = document.createElement("div");
+      title.style.cssText = "font-weight:800;color:#0b2b5a;margin:12px 0 8px;";
+      title.innerText = "คูปองของคุณ";
+
+      couponSection.appendChild(title);
+      document.querySelector(".card").appendChild(couponSection);
+    }
+
+    // ล้างคูปองเก่าก่อน (กันซ้ำเวลารีเฟรช)
+    couponSection.querySelectorAll(".couponCard").forEach(el => el.remove());
+
+    // ถ้าไม่มีคูปอง
+    if (!wallet.coupons || wallet.coupons.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "couponCard";
+      empty.style.cssText = "padding:12px;border-radius:12px;background:#f3f6ff;color:#6b7280;";
+      empty.innerText = "ยังไม่มีคูปอง — กดแลกแต้มเพื่อรับคูปองได้เลย";
+      couponSection.appendChild(empty);
+    } else {
+      // มีคูปอง → สร้างการ์ดแสดงทีละใบ
+      wallet.coupons.forEach(c => {
+        const card = document.createElement("div");
+        card.className = "couponCard";
+        card.style.cssText =
+          "padding:12px;border-radius:12px;background:#f3f6ff;margin-top:8px;";
+
+        const valueText =
+          c.type === "percent"
+            ? `${c.value}%`
+            : `${c.value} บาท`;
+
+        card.innerHTML = `
+          <div style="font-weight:800;color:#0b2b5a;">${c.name}</div>
+          <div style="color:#374151;margin-top:4px;">มูลค่า: ${valueText}</div>
+          <div style="color:#6b7280;margin-top:2px;">ขั้นต่ำ: ${c.min || 0} บาท</div>
+          <div style="color:#6b7280;margin-top:2px;">หมดอายุ: ${c.expire || "-"}</div>
+        `;
+
+        couponSection.appendChild(card);
+      });
+    }
+
+    // ปุ่มแสดงชื่อ (ของเดิม) — ปรับให้โชว์ข้อมูลสมาชิกด้วย
     document.getElementById("btnProfile").onclick = () => {
       alert(
         "ชื่อ: " + data.name +
@@ -82,7 +142,6 @@ async function main() {
       "เปิด LIFF ไม่สำเร็จ: " + e;
   }
 }
-
 main();
 </script>
 </body>
