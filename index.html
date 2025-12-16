@@ -73,8 +73,12 @@ async function main() {
     const wallet = await walletRes.json();
 
     // แสดงแต้ม 2 ประเภท
-    document.getElementById("redeemPts").innerText = wallet.points.redeem || 0;
-    document.getElementById("levelPts").innerText = wallet.points.level || 0;
+    const redeem = wallet.points?.redeem ?? 0;
+    const level = wallet.points?.level ?? 0;
+
+    document.getElementById("redeemPts").innerText = redeem;
+    document.getElementById("levelPts").innerText = level;
+
 
     // 3) แสดงคูปองในหน้า Member
     // สร้างหัวข้อ "คูปองของคุณ" ไว้ใต้การ์ดหลัก
