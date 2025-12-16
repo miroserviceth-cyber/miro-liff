@@ -6,149 +6,59 @@
   <title>Member</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
-    body{
-      font-family:system-ui,-apple-system,Segoe UI,Roboto;
-      margin:0;
-      background:#f5f7fb;
-    }
+    body{font-family:system-ui;margin:0;background:#f5f7fb}
     .wrap{max-width:420px;margin:0 auto;padding:16px}
-    .card{
-      background:#fff;
-      border-radius:16px;
-      padding:16px;
-      box-shadow:0 6px 18px rgba(0,0,0,.06)
-    }
-    .title{font-size:18px;font-weight:700;color:#0b2b5a;margin:0 0 8px}
+    .card{background:#fff;border-radius:16px;padding:16px}
     .muted{color:#6b7280;font-size:13px}
-    .btn{
-      width:100%;
-      border:0;
-      border-radius:12px;
-      padding:12px 14px;
-      font-weight:700;
-      margin-top:10px;
-      background:#0b63ce;
-      color:#fff
-    }
-    .row{display:flex;gap:10px;margin-top:12px}
-    .mini{flex:1;background:#f3f6ff;border-radius:14px;padding:12px}
-    .big{font-size:22px;font-weight:800;color:#0b2b5a;margin-top:4px}
-    .couponCard{
-      padding:12px;
-      border-radius:12px;
-      background:#f3f6ff;
-      margin-top:8px
-    }
+    .big{font-size:22px;font-weight:800}
   </style>
 </head>
 
 <body>
 <div class="wrap">
   <div class="card">
-    <p class="title">บัตรสมาชิก</p>
-    <div class="muted" id="status">กำลังโหลด...</div>
-
-    <div class="row">
-      <div class="mini">
-        <div class="muted">แต้มแลกของ</div>
-        <div class="big" id="redeemPts">0</div>
-        <div class="muted">1 แต้ม = 1 บาท</div>
-      </div>
-      <div class="mini">
-        <div class="muted">แต้มสะสมเลเวล</div>
-        <div class="big" id="levelPts">0</div>
-        <div class="muted">ไม่มีวันหมดอายุ</div>
-      </div>
-    </div>
-
-    <button class="btn" id="btnProfile">ดูข้อมูลสมาชิก</button>
+    <div id="status" class="muted">กำลังโหลด...</div>
+    <p>แต้มแลกของ: <span id="redeemPts">-</span></p>
+    <p>แต้มสะสมเลเวล: <span id="levelPts">-</span></p>
   </div>
 </div>
 
 <script>
-/* ================= CONFIG ================= */
 const LIFF_ID = "2008701497-IOxPqnn3";
 const API_URL = "https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec";
 
-/* ================= HELPER ================= */
-function formatThaiDate(isoDate) {
-  if (!isoDate) return "-";
-  const d = new Date(isoDate);
-  const months = [
-    "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
-    "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
-  ];
-  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear() + 543}`;
-}
-
-/* ================= MAIN ================= */
-async function main() {
-  try {
+async function main(){
+  try{
+    document.getElementById("status").innerText = "เริ่มต้น LIFF...";
     await liff.init({ liffId: LIFF_ID });
 
-    if (!liff.isLoggedIn()) {
+    if(!liff.isLoggedIn()){
       liff.login();
       return;
     }
 
+    document.getElementById("status").innerText = "ดึงข้อมูล LINE...";
     const profile = await liff.getProfile();
-    const userId = profile.userId;
-    const displayName = profile.displayName;
 
-    /* MEMBER */
+    document.getElementById("status").innerText = "สมัครสมาชิก...";
     const res = await fetch(
-      `${API_URL}?action=member&userId=${userId}&name=${encodeURIComponent(displayName)}`
+      `${API_URL}?action=member&userId=${profile.userId}&name=${encodeURIComponent(profile.displayName)}`
     );
     const data = await res.json();
 
-    document.getElementById("status").innerText = `สวัสดีคุณ ${data.name}`;
-
-    /* WALLET */
-    const walletRes = await fetch(
+    document.getElementById("status").innerText = "ดึงแต้ม...";
+    const w = await fetch(
       `${API_URL}?action=wallet&memberId=${data.member_id}`
     );
-    const wallet = await walletRes.json();
+    const wallet = await w.json();
 
     document.getElementById("redeemPts").innerText = wallet.points?.redeem ?? 0;
     document.getElementById("levelPts").innerText = wallet.points?.level ?? 0;
 
-    /* COUPONS */
-    let section = document.getElementById("couponSection");
-    if (!section) {
-      section = document.createElement("div");
-      section.id = "couponSection";
-      section.innerHTML = `<div class="title" style="margin-top:16px">คูปองของคุณ</div>`;
-      document.querySelector(".card").appendChild(section);
-    }
+    document.getElementById("status").innerText = "โหลดสำเร็จ";
 
-    section.querySelectorAll(".couponCard").forEach(e => e.remove());
-
-    if (!wallet.coupons || wallet.coupons.length === 0) {
-      const empty = document.createElement("div");
-      empty.className = "couponCard";
-      empty.innerText = "ยังไม่มีคูปอง";
-      section.appendChild(empty);
-    } else {
-      wallet.coupons.forEach(c => {
-        const div = document.createElement("div");
-        div.className = "couponCard";
-        div.innerHTML = `
-          <b>${c.name}</b><br>
-          มูลค่า: ${c.type === "percent" ? c.value + "%" : c.value + " บาท"}<br>
-          ขั้นต่ำ: ${c.min || 0} บาท<br>
-      
-        section.appendChild(div);
-      });
-    }
-
-    document.getElementById("btnProfile").onclick = () => {
-      alert(
-        `ชื่อ: ${data.name}\nMember ID: ${data.member_id}\nLevel: ${data.level}`
-      );
-    };
-
-  } catch (e) {
-    document.getElementById("status").innerText = "เปิด LIFF ไม่สำเร็จ: " + e;
+  }catch(e){
+    document.getElementById("status").innerText = "ERROR: " + e;
   }
 }
 
