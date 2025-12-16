@@ -136,8 +136,6 @@ async function main() {
           <b>${c.name}</b><br>
           มูลค่า: ${c.type === "percent" ? c.value + "%" : c.value + " บาท"}<br>
           ขั้นต่ำ: ${c.min || 0} บาท<br>
-          หมดอายุ: ${formatThaiDate(c.expire)}
-        `;
         section.appendChild(div);
       });
     }
