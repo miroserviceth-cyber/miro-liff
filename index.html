@@ -40,36 +40,50 @@
     </div>
   </div>
 
-  <script>
-    const LIFF_ID = "2008701497-IOxPqnn3";
+ <script>
+const LIFF_ID = "2008701497-IOxPqnn3";   // ← LIFF ID ของต่อ
+const API_URL = "https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec"; 
 
-    async function main(){
-      try{
-        await liff.init({ liffId: LIFF_ID });
+async function main() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
 
-        if(!liff.isLoggedIn()){
-          // ให้ LIFF พา login เอง (ลูกค้าไม่ต้องพิมพ์)
-          liff.login();
-          return;
-        }
-
-        const profile = await liff.getProfile();
-        document.getElementById("status").innerText =
-          `สวัสดีคุณ ${profile.displayName} (ดึงจาก LINE สำเร็จ)`;
-
-        // เดโมแต้มก่อน (STEP ถัดไปค่อยดึงจาก Google Sheet)
-        document.getElementById("redeemPts").innerText = "0";
-        document.getElementById("levelPts").innerText = "0";
-
-        document.getElementById("btnProfile").onclick = () => {
-          alert("ชื่อ: " + profile.displayName + "\nUserID: " + profile.userId);
-        };
-
-      }catch(e){
-        document.getElementById("status").innerText = "เปิด LIFF ไม่สำเร็จ: " + e;
-      }
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return;
     }
-    main();
-  </script>
+
+    const profile = await liff.getProfile();
+    const userId = profile.userId;
+
+    // เรียก Google Sheet
+    const res = await fetch(
+      `${API_URL}?action=member&userId=${userId}`
+    );
+    const data = await res.json();
+
+    document.getElementById("status").innerText =
+      `สวัสดีคุณ ${data.name}`;
+
+    // ตอนนี้ยังโชว์ 0 ก่อน (STEP 7 จะดึงแต้มจริง)
+    document.getElementById("redeemPts").innerText = "0";
+    document.getElementById("levelPts").innerText = data.total_spend;
+
+    document.getElementById("btnProfile").onclick = () => {
+      alert(
+        "ชื่อ: " + data.name +
+        "\nMember ID: " + data.member_id +
+        "\nLevel: " + data.level
+      );
+    };
+
+  } catch (e) {
+    document.getElementById("status").innerText =
+      "เปิด LIFF ไม่สำเร็จ: " + e;
+  }
+}
+
+main();
+</script>
 </body>
 </html>
