@@ -45,7 +45,21 @@
  <script>
 const LIFF_ID = "2008701497-IOxPqnn3"; // ← LIFF ID ของต่อ
 const API_URL = "https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec"; 
+function formatThaiDate(isoDate) {
+  if (!isoDate) return "-";
 
+  const d = new Date(isoDate);
+  const months = [
+    "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+    "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+  ];
+
+  const day = d.getDate();
+  const month = months[d.getMonth()];
+  const year = d.getFullYear() + 543;
+
+  return `${day} ${month} ${year}`;
+  
 async function main() {
   try {
     await liff.init({ liffId: LIFF_ID });
@@ -145,22 +159,7 @@ async function main() {
 
   } catch (e) {
     document.getElementById("status").innerText =
-      "เปิด LIFF ไม่สำเร็จ: " + e;
-  }
-  function formatThaiDate(isoDate) {
-  if (!isoDate) return "-";
-
-  const d = new Date(isoDate);
-  const months = [
-    "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
-    "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
-  ];
-
-  const day = d.getDate();
-  const month = months[d.getMonth()];
-  const year = d.getFullYear() + 543;
-
-  return `${day} ${month} ${year}`;
+      "เปิด LIFF ไม่สำเร็จ: " + e; 
   }
 }
 main();
