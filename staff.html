@@ -5,61 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Miro Staff</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-
   <style>
-    body{font-family:system-ui;margin:0;background:#f5f7fb}
+    body{font-family:system-ui;margin:0;background:#f5f7fb;color:#0b2b5a}
     .wrap{max-width:420px;margin:0 auto;padding:16px}
-    .card{
-      background:#fff;
-      border-radius:18px;
-      padding:16px;
-      box-shadow:0 8px 22px rgba(0,0,0,.08)
-    }
-    .title{font-size:18px;font-weight:800;margin-bottom:8px}
+    .card{background:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 22px rgba(0,0,0,.08)}
+    .title{font-size:18px;font-weight:900;margin:0 0 6px}
     .muted{color:#6b7280;font-size:13px}
-    .job{
-      background:#f3f6ff;
-      border-radius:14px;
-      padding:14px;
-      margin-top:12px
-    }
-    .btn{
-      width:100%;
-      border:0;
-      border-radius:14px;
-      padding:14px;
-      font-size:15px;
-      font-weight:800;
-      background:#16a34a;
-      color:#fff;
-      margin-top:12px
-    }
+    .job{background:#f3f6ff;border-radius:16px;padding:14px;margin-top:12px}
+    .line{font-size:13px;color:#374151;margin-top:6px}
+    .input{width:100%;padding:12px;border-radius:12px;border:1px solid #dbe3f5;margin-top:10px}
+    .btn{width:100%;border:0;border-radius:14px;padding:14px;font-size:15px;font-weight:900;background:#16a34a;color:#fff;margin-top:12px}
+    .btn2{width:100%;border:0;border-radius:14px;padding:14px;font-size:15px;font-weight:900;background:#0b63ce;color:#fff;margin-top:12px}
   </style>
 </head>
-
 <body>
 <div class="wrap">
   <div class="card">
     <div class="title">งานวันนี้</div>
     <div class="muted" id="status">กำลังโหลดงาน...</div>
-
     <div id="jobBox"></div>
   </div>
 </div>
 
 <script>
-/* ===== CONFIG ===== */
 const LIFF_ID = "2008701497-NW5Xis1n";
 const API_URL = "https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec";
 
 async function main(){
   try{
     await liff.init({ liffId: LIFF_ID });
-
-    if(!liff.isLoggedIn()){
-      liff.login();
-      return;
-    }
+    if(!liff.isLoggedIn()){ liff.login(); return; }
 
     const res = await fetch(`${API_URL}?action=staff_job`);
     const job = await res.json();
@@ -69,44 +44,70 @@ async function main(){
       return;
     }
 
-    if(!job.job_id){
-      document.getElementById("status").innerText = "ข้อมูลงานไม่สมบูรณ์";
-      return;
-    }
-
-    document.getElementById("status").innerText = "แตะเพื่อจบงาน";
+    document.getElementById("status").innerText = "ตรวจสอบรายละเอียด แล้วกดจบงาน";
 
     const box = document.getElementById("jobBox");
     box.innerHTML = `
       <div class="job">
-        <b>${job.service}</b><br>
-        ราคา ${job.price} บาท
-        <button class="btn" onclick="finishJob('${job.job_id}')">
-          จบงาน
-        </button>
+        <div style="font-weight:900">${job.service_name}</div>
+        <div class="line">ลูกค้า: ${job.customer_name || "-"}</div>
+        <div class="line">ที่อยู่: ${job.customer_address || "-"}</div>
+        <div class="line">ประเภทลูกค้า: ${job.customer_type || "ทั่วไป"}</div>
+        <div class="line">ราคา: ${job.price} บาท</div>
+        <div class="line">ค่าเดินทาง: ${job.travel_fee} บาท</div>
+        <div class="line">ชำระเงิน (เดิม): ${job.payment_type || "-"}</div>
+
+        <select class="input" id="payment_type">
+          <option value="">ไม่เปลี่ยน (ใช้ค่าเดิม)</option>
+          <option value="เงินสด">เงินสด</option>
+          <option value="โอน">โอน</option>
+        </select>
+
+        <input class="input" id="coupon_name" placeholder="ชื่อคูปอง (ถ้ามี) เช่น ลด 50 บาท">
+        <input class="input" id="coupon_discount" type="number" placeholder="จำนวนเงินส่วนลด (บาท) เช่น 50">
+
+        <input class="input" id="extra_fee" type="number" placeholder="ค่าเพิ่มหน้างาน (บาท) ถ้ามี">
+
+        <input class="input" id="next_visit" placeholder="นัดครั้งถัดไป (YYYY-MM-DD หรือข้อความ)">
+
+        <button class="btn" onclick="finishJob('${job.job_id}')">จบงาน</button>
+        <button class="btn2" onclick="reload()">รีเฟรช</button>
       </div>
     `;
-
   }catch(e){
     document.getElementById("status").innerText = "ERROR: " + e;
   }
 }
 
+function reload(){ location.reload(); }
+
 async function finishJob(jobId){
   if(!confirm("ยืนยันจบงานนี้?")) return;
 
-  document.getElementById("status").innerText = "กำลังจบงาน...";
+  document.getElementById("status").innerText = "กำลังจบงานและส่งใบเสร็จ...";
 
-  const res = await fetch(
-    `${API_URL}?action=finish_job&jobId=${jobId}`
-  );
+  const payment_type = document.getElementById("payment_type").value;
+  const coupon_name = document.getElementById("coupon_name").value.trim();
+  const coupon_discount = document.getElementById("coupon_discount").value || "";
+  const extra_fee = document.getElementById("extra_fee").value || "";
+  const next_visit = document.getElementById("next_visit").value.trim();
+
+  const url =
+    `${API_URL}?action=finish_job&jobId=${encodeURIComponent(jobId)}` +
+    `&payment_type=${encodeURIComponent(payment_type)}` +
+    `&coupon_name=${encodeURIComponent(coupon_name)}` +
+    `&coupon_discount=${encodeURIComponent(coupon_discount)}` +
+    `&extra_fee=${encodeURIComponent(extra_fee)}` +
+    `&next_visit=${encodeURIComponent(next_visit)}`;
+
+  const res = await fetch(url);
   const data = await res.json();
 
   if(data.success){
-    document.getElementById("status").innerText = "จบงานเรียบร้อย ระบบส่งใบเสร็จให้ลูกค้าแล้ว";
+    document.getElementById("status").innerText = "จบงานเรียบร้อย และส่งใบเสร็จแล้ว";
     document.getElementById("jobBox").innerHTML = "";
   }else{
-    document.getElementById("status").innerText = data.error || "เกิดข้อผิดพลาด";
+    document.getElementById("status").innerText = "เกิดข้อผิดพลาด: " + (data.error || "unknown");
   }
 }
 
@@ -114,4 +115,3 @@ main();
 </script>
 </body>
 </html>
-
