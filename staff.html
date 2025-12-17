@@ -133,7 +133,7 @@ async function openJobDetail(jobId){
       <input id="coupon_name" class="input" placeholder="ชื่อคูปอง (ถ้ามี)">
       <input id="coupon_discount" class="input" type="number" placeholder="ส่วนลด (บาท)">
       <input id="extra_fee" class="input" type="number" placeholder="ค่าเพิ่มหน้างาน">
-      <input id="next_visit" type="date"class="input">
+      <input id="next_visit" class="input" type="date" placeholder="นัดครั้งถัดไป (YYYY-MM-DD)">
 
       <button class="btn btn-green" onclick="finishJob('${job.job_id}')">จบงาน</button>
       <button class="btn btn-gray" onclick="loadJobList()">ย้อนกลับ</button>
