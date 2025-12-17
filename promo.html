@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>โปรโมชั่น</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+body{margin:0;font-family:system-ui;background:#f5f7fb}
+.wrap{max-width:420px;margin:auto;padding:16px}
+.card{background:#fff;border-radius:16px;overflow:hidden;
+box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.img{width:100%;height:200px;object-fit:cover}
+.pad{padding:14px}
+.title{font-weight:800}
+.desc{font-size:14px;color:#475569;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap" id="list"></div>
+
+<script>
+async function init(){
+  await liff.init({ liffId:"YOUR_LIFF_ID" })
+  if(!liff.isLoggedIn()){ liff.login(); return }
+
+  const res = await fetch("YOUR_WEBAPP_URL?action=promo_list")
+  const data = await res.json()
+  render(data)
+}
+
+function render(items){
+  const el = document.getElementById("list")
+  items.forEach(p=>{
+    el.innerHTML += `
+      <div class="card">
+        <img class="img" src="${p.image_url}">
+        <div class="pad">
+          <div class="title">${p.title}</div>
+          <div class="desc">${p.description}</div>
+        </div>
+      </div><br>
+    `
+  })
+}
+
+init()
+</script>
+</body>
+</html>
