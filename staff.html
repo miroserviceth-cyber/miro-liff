@@ -1,117 +1,183 @@
 <!doctype html>
-<html>
+<html lang="th">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MIRO Staff – งานล่าสุด</title>
-<style>
-body{font-family:system-ui;background:#0b1220;color:#e5e7eb;margin:16px}
-.card{background:#111827;border:1px solid #1f2937;border-radius:14px;padding:14px;margin-bottom:14px}
-input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #334155;background:#0b1220;color:#e5e7eb}
-button{width:100%;padding:12px;border-radius:12px;border:0;background:#fbbf24;font-weight:700;margin-top:10px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.muted{color:#94a3b8;font-size:13px}
-.ok{color:#22c55e}.bad{color:#ef4444}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Miro Staff</title>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    body{font-family:system-ui;margin:0;background:#f5f7fb;color:#0b2b5a}
+    .wrap{max-width:420px;margin:0 auto;padding:16px}
+    .card{background:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 22px rgba(0,0,0,.08)}
+    .title{font-size:18px;font-weight:900;margin:0 0 8px}
+    .muted{color:#6b7280;font-size:13px}
+
+    .job{background:#f3f6ff;border-radius:16px;padding:14px;margin-top:12px;cursor:pointer}
+    .line{font-size:13px;color:#374151;margin-top:6px}
+
+    .input{width:100%;padding:12px;border-radius:12px;border:1px solid #dbe3f5;margin-top:10px}
+
+    .btn{width:100%;border:0;border-radius:14px;padding:14px;font-size:15px;font-weight:900;margin-top:12px}
+    .btn-green{background:#16a34a;color:#fff}
+    .btn-blue{background:#0b63ce;color:#fff}
+    .btn-gray{background:#6b7280;color:#fff}
+  </style>
 </head>
+
 <body>
+<div class="wrap">
+  <div class="card">
 
-<h2>MIRO Staff – งานล่าสุด</h2>
+    <div class="title">งานของวันนี้</div>
+    <div class="muted" id="status">กำลังโหลด...</div>
 
-<div class="card">
-  <div class="muted">ใส่ STAFF_KEY (จำกัดสิทธิ์พนักงาน)</div>
-  <input id="staffKey" placeholder="STAFF_KEY">
-  <button onclick="saveKey()">บันทึก Key</button>
-  <div id="keyState" class="muted"></div>
-</div>
+    <!-- =================== -->
+    <!-- หน้าเลือกงาน -->
+    <!-- =================== -->
+    <div id="jobListView"></div>
 
-<div class="card">
-  <div class="row">
-    <button onclick="loadJob()">ดึงงานล่าสุด</button>
-    <button onclick="goHistory()">ดูประวัติงาน</button>
+    <!-- =================== -->
+    <!-- หน้ารายละเอียดงาน -->
+    <!-- =================== -->
+    <div id="jobDetailView" style="display:none"></div>
+
   </div>
-  <div id="jobBox" class="muted">ยังไม่ได้โหลดงาน</div>
-</div>
-
-<div class="card">
-  <h3>ปิดงาน</h3>
-
-  <label>Job ID</label>
-  <input id="jobId">
-
-  <label>ประเภทการชำระเงิน</label>
-  <select id="payType">
-    <option value="">-</option>
-    <option>เงินสด</option>
-    <option>โอน</option>
-    <option>อื่นๆ</option>
-  </select>
-
-  <label>Coupon ID (ถ้ามี)</label>
-  <input id="couponId">
-
-  <label>ชื่อคูปอง</label>
-  <input id="couponName">
-
-  <label>ส่วนลด (บาท)</label>
-  <input id="couponDiscount" value="0">
-
-  <label>ค่าเพิ่มหน้างาน</label>
-  <input id="extraFee" value="0">
-
-  <label>นัดถัดไป (YYYY-MM-DD หรือข้อความ)</label>
-  <input id="nextVisit">
-
-  <button onclick="finish()">ปิดงาน + ส่งสรุป</button>
-  <div id="result" class="muted"></div>
 </div>
 
 <script>
-const API_BASE = "https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec";
+/* ==============================
+   CONFIG
+================================ */
+const LIFF_ID = "2008701497-NW5Xis1n";
+const API_URL = "https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec";
 
-function saveKey(){
-  localStorage.setItem("MIRO_STAFF_KEY",staffKey.value.trim());
-  renderKey();
+/* ==============================
+   INIT
+================================ */
+async function main(){
+  await liff.init({ liffId: LIFF_ID });
+  if(!liff.isLoggedIn()){
+    liff.login();
+    return;
+  }
+  loadJobList();
 }
-function renderKey(){
-  keyState.innerHTML = localStorage.getItem("MIRO_STAFF_KEY") ? "ตั้งค่าแล้ว" : "ยังไม่ตั้งค่า";
-}
-function qs(o){return new URLSearchParams(o).toString();}
-function key(){return localStorage.getItem("MIRO_STAFF_KEY")||"";}
 
-async function loadJob(){
-  const r = await fetch(API_BASE+"?"+qs({action:"staff_job",key:key()}));
-  const j = await r.json();
-  if(j.error){jobBox.innerHTML=j.error;return;}
-  jobBox.innerHTML = `
-    <b>${j.job_id}</b><br>
-    ลูกค้า: ${j.customer_name}<br>
-    ที่อยู่: ${j.customer_address}<br>
-    บริการ: ${j.service_name}<br>
-    ราคา: ${j.price} | เดินทาง: ${j.travel_fee}
+/* ==============================
+   โหลดรายการงานทั้งหมด
+   ใช้ action=staff_jobs
+================================ */
+async function loadJobList(){
+  document.getElementById("status").innerText = "กำลังโหลดงาน...";
+  document.getElementById("jobListView").style.display = "block";
+  document.getElementById("jobDetailView").style.display = "none";
+
+  const res = await fetch(`${API_URL}?action=staff_jobs`);
+  const jobs = await res.json();
+
+  const box = document.getElementById("jobListView");
+  box.innerHTML = "";
+
+  if(!Array.isArray(jobs) || jobs.length === 0){
+    document.getElementById("status").innerText = "ยังไม่มีงานค้าง";
+    return;
+  }
+
+  document.getElementById("status").innerText = `พบ ${jobs.length} งาน`;
+
+  jobs.forEach(job=>{
+    const div = document.createElement("div");
+    div.className = "job";
+    div.innerHTML = `
+      <div style="font-weight:900">${job.service_name}</div>
+      <div class="line">ลูกค้า: ${job.customer_name || "-"}</div>
+      <div class="line">ที่อยู่: ${job.customer_address || "-"}</div>
+      <div class="line">ประเภทลูกค้า: ${job.customer_type}</div>
+      <div class="line">รายเดือนคงเหลือ: ${job.remain_times || 0} ครั้ง</div>
+      <div class="line">ราคา: ${job.price} บาท</div>
+    `;
+    div.onclick = ()=> openJobDetail(job.job_id);
+    box.appendChild(div);
+  });
+}
+
+/* ==============================
+   เปิดดูรายละเอียดงาน
+   ใช้ action=job_detail
+================================ */
+async function openJobDetail(jobId){
+  document.getElementById("status").innerText = "กำลังโหลดรายละเอียดงาน...";
+  document.getElementById("jobListView").style.display = "none";
+  document.getElementById("jobDetailView").style.display = "block";
+
+  const res = await fetch(`${API_URL}?action=job_detail&jobId=${jobId}`);
+  const job = await res.json();
+
+  const box = document.getElementById("jobDetailView");
+  box.innerHTML = `
+    <div class="job">
+      <div style="font-weight:900">${job.service_name}</div>
+      <div class="line">ลูกค้า: ${job.customer_name}</div>
+      <div class="line">ที่อยู่: ${job.customer_address}</div>
+      <div class="line">ประเภทลูกค้า: ${job.customer_type}</div>
+      <div class="line">รายเดือนคงเหลือ: ${job.remain_times || 0} ครั้ง</div>
+
+      <select id="payment_type" class="input">
+        <option value="">ไม่เปลี่ยนประเภทการชำระเงิน</option>
+        <option value="เงินสด">เงินสด</option>
+        <option value="โอน">โอน</option>
+      </select>
+
+      <input id="coupon_name" class="input" placeholder="ชื่อคูปอง (ถ้ามี)">
+      <input id="coupon_discount" class="input" type="number" placeholder="ส่วนลด (บาท)">
+      <input id="extra_fee" class="input" type="number" placeholder="ค่าเพิ่มหน้างาน">
+      <input id="next_visit" class="input" placeholder="นัดครั้งถัดไป (YYYY-MM-DD)">
+
+      <button class="btn btn-green" onclick="finishJob('${job.job_id}')">จบงาน</button>
+      <button class="btn btn-gray" onclick="loadJobList()">ย้อนกลับ</button>
+    </div>
   `;
-  jobId.value=j.job_id;
+
+  document.getElementById("status").innerText = "ตรวจสอบข้อมูลแล้วกดจบงาน";
 }
 
-async function finish(){
-  const data={
-    action:"finish_job",
-    key:key(),
-    jobId:jobId.value,
-    payment_type:payType.value,
-    coupon_id:couponId.value,
-    coupon_name:couponName.value,
-    coupon_discount:couponDiscount.value,
-    extra_fee:extraFee.value,
-    next_visit:nextVisit.value
-  };
-  const r = await fetch(API_BASE+"?"+qs(data));
-  const j = await r.json();
-  result.innerHTML = j.success ? "สำเร็จ "+j.receipt_id : j.error;
+/* ==============================
+   จบงาน
+================================ */
+async function finishJob(jobId){
+  if(!confirm("ยืนยันจบงานนี้?")) return;
+
+  document.getElementById("status").innerText = "กำลังจบงาน...";
+
+  const payment_type = document.getElementById("payment_type").value;
+  const coupon_name = document.getElementById("coupon_name").value;
+  const coupon_discount = document.getElementById("coupon_discount").value;
+  const extra_fee = document.getElementById("extra_fee").value;
+  const next_visit = document.getElementById("next_visit").value;
+
+  const url =
+    `${API_URL}?action=finish_job&jobId=${jobId}` +
+    `&payment_type=${encodeURIComponent(payment_type)}` +
+    `&coupon_name=${encodeURIComponent(coupon_name)}` +
+    `&coupon_discount=${encodeURIComponent(coupon_discount)}` +
+    `&extra_fee=${encodeURIComponent(extra_fee)}` +
+    `&next_visit=${encodeURIComponent(next_visit)}`;
+
+  const res = await fetch(url);
+  const data = await res.json();
+
+  if(data.success){
+    alert("จบงานเรียบร้อย");
+    loadJobList(); // กลับไปหน้าเลือกงาน
+  }else{
+    alert("ผิดพลาด: " + data.error);
+    document.getElementById("status").innerText = "เกิดข้อผิดพลาด";
+  }
 }
 
-function goHistory(){location.href="staff-2.html";}
-renderKey();
+main();
 </script>
 </body>
 </html>
