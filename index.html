@@ -7,116 +7,147 @@
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
 <style>
-body{
-  font-family:system-ui;
-  margin:0;
-  background:#f4f6fb;
-  color:#0b2b5a
+:root{
+  --bg:#f4f6fb;
+  --ink:#0b2b5a;
+  --muted:#6b7280;
+  --line:#dbe3f5;
+  --brand:#0b63ce;
+  --brand2:#0a3f8f;
+  --ok:#16a34a;
 }
+body{font-family:system-ui;margin:0;background:var(--bg);color:var(--ink)}
 .wrap{max-width:420px;margin:0 auto;padding:16px}
+.sep{height:1px;background:var(--line);margin:14px 0;border-radius:99px;opacity:.7}
 
-/* ===== USER HEADER ===== */
-.user-head{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:12px
+/* ===== TOP HEADER (บริษัทๆ) ===== */
+.topbar{
+  background:#fff;
+  border-radius:16px;
+  padding:12px 14px;
+  box-shadow:0 6px 16px rgba(0,0,0,.06);
+  margin-bottom:12px;
 }
-.user-name{font-size:16px;font-weight:800}
-.user-type{
+.greet{font-size:14px;font-weight:900;margin:0}
+.subgreet{font-size:12px;color:var(--muted);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{
   font-size:12px;
   padding:4px 10px;
   border-radius:999px;
   border:1px solid #c7d2fe;
   background:#eef2ff;
-  font-weight:600
+  font-weight:700;
+  color:#223a7a;
 }
 
-/* ===== CARD ===== */
+/* ===== MEMBER CARD ===== */
 .card{
-  background:linear-gradient(135deg,#0b63ce,#0a3f8f);
+  background:linear-gradient(135deg,var(--brand),var(--brand2));
   color:#fff;
   border-radius:22px;
   padding:18px;
   position:relative;
   box-shadow:0 12px 28px rgba(0,0,0,.18)
 }
-.logo{
-  width:30px;
-  position:absolute;
-  top:16px;
-  right:16px
-}
-.level{font-size:13px;opacity:.9}
-.points{
-  font-size:44px;
-  font-weight:900;
-  margin:6px 0 4px
-}
-.expire{font-size:13px;opacity:.9}
+.logo{width:30px;position:absolute;top:16px;right:16px}
+.level{font-size:13px;opacity:.92}
+.points{font-size:44px;font-weight:900;margin:6px 0 4px;letter-spacing:.5px}
+.expire{font-size:13px;opacity:.92;line-height:1.35}
 .card-footer{
   display:flex;
   justify-content:space-between;
+  gap:10px;
   font-size:12px;
-  opacity:.85;
+  opacity:.88;
   margin-top:14px
 }
+.card-footer div{white-space:nowrap}
 
 /* ===== SECTIONS ===== */
-.sec{margin-top:20px}
-.h{font-weight:900;margin-bottom:8px}
-
+.sec{margin-top:18px}
+.hrow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.h{font-weight:900}
+.hint{font-size:12px;color:var(--muted)}
 /* ===== COUPONS ===== */
-.coupon-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px
-}
+.coupon-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .coupon{
-  background:#fff;
-  border-radius:14px;
-  padding:10px;
-  box-shadow:0 4px 10px rgba(0,0,0,.06)
+  background:#fff;border-radius:14px;padding:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,.06);
+  border:1px solid rgba(219,227,245,.7)
 }
-.coupon .name{font-weight:800;font-size:14px}
-.coupon .meta{font-size:12px;color:#6b7280;margin-top:2px}
+.coupon .name{font-weight:900;font-size:13px;line-height:1.2}
+.coupon .meta{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.3}
+.coupon .meta b{color:#334155}
 .coupon button{
-  width:100%;
-  margin-top:6px;
-  padding:8px;
-  border-radius:10px;
-  border:0;
-  font-weight:800;
-  background:#16a34a;
-  color:#fff;
-  font-size:13px
+  width:100%;margin-top:8px;padding:9px;border-radius:10px;border:0;
+  font-weight:900;background:var(--ok);color:#fff;font-size:12px
+}
+.badge{
+  display:inline-block;
+  font-size:10px;
+  padding:3px 8px;
+  border-radius:999px;
+  border:1px solid rgba(11,99,206,.25);
+  background:rgba(11,99,206,.08);
+  color:#1e3a8a;
+  margin-top:8px
 }
 
-/* ===== HISTORY ===== */
-.box{
-  background:#fff;
-  border-radius:14px;
-  padding:12px;
-  box-shadow:0 4px 10px rgba(0,0,0,.05)
+/* ===== HISTORY (พับได้ + คลิกดูรายละเอียด) ===== */
+.accordion{
+  background:#fff;border-radius:16px;
+  border:1px solid rgba(219,227,245,.9);
+  box-shadow:0 6px 16px rgba(0,0,0,.05);
+  overflow:hidden
 }
+.acc-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 14px;cursor:pointer;user-select:none
+}
+.acc-title{font-weight:900}
+.acc-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.acc-left{display:flex;flex-direction:column}
+.acc-icon{font-weight:900;color:#334155}
+.acc-body{display:none;padding:0 14px 14px}
+.item{
+  background:#f8fafc;border:1px solid rgba(219,227,245,.9);
+  border-radius:14px;padding:10px;margin-top:10px
+}
+.item .t{font-weight:900;font-size:13px}
+.item .d{font-size:12px;color:#475569;margin-top:4px;line-height:1.35}
+.item .link{
+  display:inline-block;margin-top:8px;font-size:12px;
+  color:var(--brand);font-weight:800;cursor:pointer;text-decoration:underline
+}
+.empty{
+  background:#fff;border:1px dashed rgba(219,227,245,.9);
+  border-radius:14px;padding:12px;color:var(--muted);font-size:12px
+}
+
+/* small loading */
+.loading{font-size:12px;color:var(--muted)}
 </style>
 </head>
 
 <body>
 <div class="wrap">
 
-  <!-- USER HEADER -->
-  <div class="user-head">
-    <div class="user-name" id="userName">-</div>
-    <div class="user-type" id="userType">-</div>
+  <!-- TOP HEADER (สวัสดี + ข้อมูลแบบบริษัท) -->
+  <div class="topbar">
+    <p class="greet" id="greet">สวัสดีคุณ -</p>
+    <div class="subgreet">
+      <span class="pill" id="userType">-</span>
+      <span class="pill" id="memberIdPill">รหัสสมาชิก: -</span>
+      <span class="pill" id="levelPill">ระดับ: -</span>
+    </div>
   </div>
 
   <!-- MEMBER CARD -->
   <div class="card">
-    <img src="https://i.ibb.co/sdmfJxdW/D.png" class="logo">
+    <img src="https://i.ibb.co/sdmfJxdW/D.png" class="logo" alt="logo">
     <div class="level" id="level">ระดับ -</div>
     <div class="points" id="redeemPts">0</div>
-    <div class="expire" id="expireText">-</div>
+    <div class="expire" id="expireText">กำลังโหลดข้อมูลแต้ม...</div>
 
     <div class="card-footer">
       <div>แต้มสะสม: <span id="totalPts">0</span></div>
@@ -126,14 +157,58 @@ body{
 
   <!-- YOUR COUPONS -->
   <div class="sec">
-    <div class="h">คูปองของคุณ</div>
+    <div class="hrow">
+      <div>
+        <div class="h">คูปองของคุณ</div>
+        <div class="hint">คูปองที่แลกแล้วจะแสดงในส่วนนี้ พร้อมวันหมดอายุ</div>
+      </div>
+    </div>
     <div id="couponBox" class="coupon-grid"></div>
   </div>
 
   <!-- REDEEM -->
   <div class="sec">
-    <div class="h">แลกคูปองด้วยแต้ม</div>
+    <div class="hrow">
+      <div>
+        <div class="h">แลกคูปองด้วยแต้ม</div>
+        <div class="hint">เลือกคูปองที่ต้องการ ระบบจะสร้างคูปองและนำไปไว้ใน “คูปองของคุณ”</div>
+      </div>
+    </div>
     <div id="redeemCatalog" class="coupon-grid"></div>
+  </div>
+
+  <!-- HISTORY: RECEIPTS (พับได้) -->
+  <div class="sec">
+    <div class="hrow">
+      <div>
+        <div class="h">ประวัติการใช้งาน</div>
+        <div class="hint">ดูย้อนหลังได้ แยกประวัติบริการ / ประวัติการใช้คูปอง</div>
+      </div>
+    </div>
+
+    <div class="accordion" id="accService">
+      <div class="acc-head" onclick="toggleAcc('accServiceBody','accServiceIcon')">
+        <div class="acc-left">
+          <div class="acc-title">ประวัติบริการ</div>
+          <div class="acc-sub" id="serviceCount">กำลังโหลด...</div>
+        </div>
+        <div class="acc-icon" id="accServiceIcon">+</div>
+      </div>
+      <div class="acc-body" id="accServiceBody"></div>
+    </div>
+
+    <div style="height:10px"></div>
+
+    <div class="accordion" id="accCouponUse">
+      <div class="acc-head" onclick="toggleAcc('accCouponBody','accCouponIcon')">
+        <div class="acc-left">
+          <div class="acc-title">ประวัติการใช้คูปอง</div>
+          <div class="acc-sub" id="couponUseCount">กำลังโหลด...</div>
+        </div>
+        <div class="acc-icon" id="accCouponIcon">+</div>
+      </div>
+      <div class="acc-body" id="accCouponBody"></div>
+    </div>
   </div>
 
 </div>
@@ -142,82 +217,211 @@ body{
 const LIFF_ID = "2008701497-IOxPqnn3";
 const API_URL = "https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec";
 
+/* ===== helpers ===== */
 function animateNumber(el, target){
-  let n = 0;
-  const step = Math.max(1, Math.floor(target / 40));
+  let current = 0;
+  target = Number(target)||0;
+  const step = Math.max(1, Math.floor(target / 45));
   const timer = setInterval(()=>{
-    n += step;
-    if(n >= target){ n = target; clearInterval(timer); }
-    el.innerText = n;
-  },20);
+    current += step;
+    if(current >= target){ current = target; clearInterval(timer); }
+    el.innerText = current;
+  }, 18);
 }
 
-function fmtThai(d){
-  const dt = new Date(d);
+function fmtThai(iso){
+  if(!iso) return "-";
+  const d = new Date(iso);
+  if(String(d)==="Invalid Date") return "-";
   const m = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
-  return `${dt.getDate()} ${m[dt.getMonth()]} ${dt.getFullYear()+543}`;
+  return `${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()+543}`;
 }
 
+function toggleAcc(bodyId, iconId){
+  const b = document.getElementById(bodyId);
+  const ic = document.getElementById(iconId);
+  const open = b.style.display === "block";
+  b.style.display = open ? "none" : "block";
+  ic.innerText = open ? "+" : "–";
+}
+
+/* กดดูรายละเอียด (ทำเป็น modal แบบเรียบ) */
+function showDetail(title, lines){
+  alert(title + "\n\n" + lines.join("\n"));
+}
+
+/* ===== main ===== */
 async function main(){
   await liff.init({liffId:LIFF_ID});
-  if(!liff.isLoggedIn()){liff.login();return;}
+  if(!liff.isLoggedIn()){ liff.login(); return; }
+
   const profile = await liff.getProfile();
 
+  // MEMBER
   const mRes = await fetch(`${API_URL}?action=member&userId=${profile.userId}&name=${encodeURIComponent(profile.displayName)}`);
   const member = await mRes.json();
 
-  document.getElementById("userName").innerText = member.name;
-  document.getElementById("userType").innerText = member.customer_type || "รายวัน";
-  document.getElementById("level").innerText = "ระดับ " + (member.level || "-");
+  // TOP HEADER (สวัสดีคุณ + pills)
+  document.getElementById("greet").innerText = `สวัสดีคุณ ${member.name || "-"}`;
+  document.getElementById("userType").innerText = (member.customer_type || "รายวัน");
+  document.getElementById("memberIdPill").innerText = `รหัสสมาชิก: ${member.member_id || "-"}`;
+  document.getElementById("levelPill").innerText = `ระดับ: ${member.level || "-"}`;
 
+  // CARD
+  document.getElementById("level").innerText = `ระดับ ${member.level || "-"}`;
+
+  // WALLET
   const wRes = await fetch(`${API_URL}?action=wallet&memberId=${member.member_id}`);
   const wallet = await wRes.json();
 
-  animateNumber(document.getElementById("redeemPts"), wallet.points.redeem || 0);
-  document.getElementById("totalPts").innerText = wallet.points.level || 0;
+  const redeemNow = wallet.points?.redeem ?? 0;
+  const totalPts  = wallet.points?.level ?? 0;
 
-  const used = (wallet.points.level || 0) - (wallet.points.redeem || 0);
+  animateNumber(document.getElementById("redeemPts"), redeemNow);
+  document.getElementById("totalPts").innerText = totalPts;
+
+  // ใช้ไปแล้ว: คิดแบบง่ายเพื่อให้ลูกค้าเข้าใจ (ถ้าคุณอยากเป๊ะ 100% เดี๋ยวทำจาก log Member_Points ได้)
+  const used = (totalPts - redeemNow);
   document.getElementById("usedPts").innerText = used > 0 ? used : 0;
 
-  const bucket = wallet.points_expire?.[0];
-  document.getElementById("expireText").innerText =
-    bucket ? `มี ${bucket.points} แต้ม หมดวันที่ ${fmtThai(bucket.expire)}` : "ไม่มีแต้มใกล้หมดอายุ";
+  // แต้มใกล้หมดอายุ: แสดงเฉพาะบวก + ใกล้สุด 1 รายการ (ไม่โชว์ติดลบ)
+  const buckets = (wallet.points_expire || []).filter(b => Number(b.points) > 0 && b.expire !== "NO_EXPIRE");
+  if(!buckets.length){
+    document.getElementById("expireText").innerText = "ไม่มีแต้มใกล้หมดอายุ";
+  }else{
+    // เรียงวันใกล้สุด
+    buckets.sort((a,b)=> String(a.expire).localeCompare(String(b.expire)));
+    const b = buckets[0];
+    document.getElementById("expireText").innerText = `มี ${b.points} แต้ม หมดวันที่ ${fmtThai(b.expire)}`;
+  }
 
-  // coupons owned
+  /* ===== COUPONS (คูปองของคุณ) ===== */
   const cBox = document.getElementById("couponBox");
   cBox.innerHTML = "";
-  (wallet.coupons || []).forEach(c=>{
-    cBox.innerHTML += `
-      <div class="coupon">
-        <div class="name">${c.name}</div>
-        <div class="meta">หมดอายุ ${fmtThai(c.expire_date)}</div>
-      </div>`;
-  });
+  const coupons = wallet.coupons || [];
 
-  // redeem catalog
+  if(!coupons.length){
+    cBox.innerHTML = `<div class="coupon" style="grid-column:1/-1">
+      <div class="meta">ยังไม่มีคูปองในขณะนี้</div>
+      <div class="badge">คูปองที่แลกแล้วจะแสดงที่นี่</div>
+    </div>`;
+  }else{
+    coupons.forEach(c=>{
+      const discountText = (c.discount_type==="percent")
+        ? `${c.discount_value}%`
+        : `${c.discount_value} บาท`;
+
+      const div = document.createElement("div");
+      div.className = "coupon";
+      div.innerHTML = `
+        <div class="name">${c.name}</div>
+        <div class="meta"><b>ส่วนลด:</b> ${discountText}</div>
+        <div class="meta"><b>หมดอายุ:</b> ${fmtThai(c.expire_date)}</div>
+        <div class="badge">สถานะ: ใช้ได้</div>
+      `;
+      cBox.appendChild(div);
+    });
+  }
+
+  /* ===== REDEEM CATALOG ===== */
+  // NOTE: ต้องให้ชื่อ/แต้มตรงกับ COUPON_CATALOG ใน Apps Script
   const catalog = [
-    {code:"C50",name:"ส่วนลด 50 บาท",cost:50},
-    {code:"C100",name:"ส่วนลด 100 บาท",cost:100},
-    {code:"P10",name:"ส่วนลด 10%",cost:150}
+    {code:"C50",  name:"คูปองส่วนลด 50 บาท",  cost:50},
+    {code:"C100", name:"คูปองส่วนลด 100 บาท", cost:100},
+    {code:"P10",  name:"คูปองส่วนลด 10%",     cost:150}
   ];
   const rBox = document.getElementById("redeemCatalog");
+  rBox.innerHTML = "";
+
   catalog.forEach(c=>{
     const div = document.createElement("div");
     div.className = "coupon";
     div.innerHTML = `
       <div class="name">${c.name}</div>
-      <div class="meta">ใช้ ${c.cost} แต้ม</div>
-      <button>แลก</button>`;
+      <div class="meta"><b>ใช้:</b> ${c.cost} แต้ม</div>
+      <button>แลกคูปอง</button>
+    `;
     div.querySelector("button").onclick = async ()=>{
-      if(!confirm(`ยืนยันแลก ${c.name}`))return;
-      const res = await fetch(`${API_URL}?action=redeem_coupon&memberId=${member.member_id}&code=${c.code}`);
+      if(!confirm(`ยืนยันแลกคูปอง\n${c.name}\nใช้ ${c.cost} แต้ม`)) return;
+      const res = await fetch(`${API_URL}?action=redeem_coupon&memberId=${encodeURIComponent(member.member_id)}&code=${encodeURIComponent(c.code)}`);
       const data = await res.json();
-      if(data.success) location.reload();
-      else alert(data.error);
+      if(data.success){
+        // หลังแลก แนะนำให้ลูกค้าเห็นทันทีว่าคูปองไปอยู่ไหน
+        alert("แลกสำเร็จ\nคูปองถูกเพิ่มไปที่หัวข้อ: คูปองของคุณ");
+        location.reload();
+      }else{
+        alert("แลกไม่สำเร็จ: " + (data.error || "unknown"));
+      }
     };
     rBox.appendChild(div);
   });
+
+  /* ===== HISTORY (พับได้) ===== */
+  const hRes = await fetch(`${API_URL}?action=history&memberId=${encodeURIComponent(member.member_id)}&limit=30`);
+  const hist = await hRes.json();
+
+  const receipts = hist.receipts || [];
+  const usedCoupons = hist.coupons_used || [];
+
+  document.getElementById("serviceCount").innerText = receipts.length ? `พบ ${receipts.length} รายการ` : "ยังไม่มีประวัติบริการ";
+  document.getElementById("couponUseCount").innerText = usedCoupons.length ? `พบ ${usedCoupons.length} รายการ` : "ยังไม่มีประวัติการใช้คูปอง";
+
+  // ประวัติบริการ
+  const svcBody = document.getElementById("accServiceBody");
+  svcBody.innerHTML = "";
+  if(!receipts.length){
+    svcBody.innerHTML = `<div class="empty">ยังไม่มีประวัติบริการ</div>`;
+  }else{
+    receipts.forEach(r=>{
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <div class="t">${r.service || "บริการ"} • ${r.price || 0} บาท</div>
+        <div class="d">วันที่: ${fmtThai(r.receipt_date)}<br>เลขที่เอกสาร: ${r.receipt_id}</div>
+        <div class="link">ดูรายละเอียด</div>
+      `;
+      div.querySelector(".link").onclick = ()=>{
+        showDetail("รายละเอียดบริการ", [
+          `เลขที่เอกสาร: ${r.receipt_id}`,
+          `บริการ: ${r.service || "-"}`,
+          `ยอด: ${r.price || 0} บาท`,
+          `แต้มที่ได้รับ: ${r.redeem || 0} คะแนน`,
+          `วันที่: ${fmtThai(r.receipt_date)}`
+        ]);
+      };
+      svcBody.appendChild(div);
+    });
+  }
+
+  // ประวัติใช้คูปอง
+  const cpnBody = document.getElementById("accCouponBody");
+  cpnBody.innerHTML = "";
+  if(!usedCoupons.length){
+    cpnBody.innerHTML = `<div class="empty">ยังไม่มีประวัติการใช้คูปอง</div>`;
+  }else{
+    usedCoupons.forEach(u=>{
+      const dv = (u.discount_type==="percent") ? `${u.discount_value}%` : `${u.discount_value} บาท`;
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <div class="t">${u.coupon_name || "คูปอง"} • ลด ${dv}</div>
+        <div class="d">ใช้เมื่อ: ${fmtThai(u.used_date)}<br>รหัสคูปอง: ${u.coupon_id}</div>
+        <div class="link">ดูรายละเอียด</div>
+      `;
+      div.querySelector(".link").onclick = ()=>{
+        showDetail("รายละเอียดการใช้คูปอง", [
+          `รหัสคูปอง: ${u.coupon_id}`,
+          `ชื่อคูปอง: ${u.coupon_name || "-"}`,
+          `ส่วนลด: ${dv}`,
+          `วันที่ใช้: ${fmtThai(u.used_date)}`
+        ]);
+      };
+      cpnBody.appendChild(div);
+    });
+  }
 }
+
+/* run */
 main();
 </script>
 </body>
