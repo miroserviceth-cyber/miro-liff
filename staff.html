@@ -159,55 +159,54 @@ async function loadCouponsForStaff(memberId){
 }
 
 /* ================= FINISH JOB ================= */
-async function finishJob(jobId, memberId){
+async function finishJob(jobId){
   if(!confirm("ยืนยันจบงานนี้?")) return;
 
   document.getElementById("status").innerText = "กำลังจบงาน...";
 
   const payment_type = document.getElementById("payment_type").value;
-  const coupon_id = document.getElementById("coupon_id").value;
-  const manual_name = document.getElementById("manual_discount_name").value;
-  const manual_amount = document.getElementById("manual_discount_amount").value;
-  const extra_fee = document.getElementById("extra_fee").value;
-  const next_visit = document.getElementById("next_visit").value;
-  const travel_fee = document.getElementById("travel_fee").value;
+  const coupon_id = document.getElementById("coupon_id")?.value || "";
+  const manual_name = document.getElementById("manual_discount_name")?.value || "";
+  const manual_amount = document.getElementById("manual_discount_amount")?.value || "";
+  const extra_fee = document.getElementById("extra_fee")?.value || 0;
+  const next_visit = document.getElementById("next_visit")?.value || "";
+  const travel_fee = document.getElementById("travel_fee")?.value || 0;
 
+  let url =
+    `${API_URL}?action=finish_job&jobId=${jobId}` +
+    `&payment_type=${encodeURIComponent(payment_type)}` +
+    `&travel_fee=${encodeURIComponent(travel_fee)}` +
+    `&extra_fee=${encodeURIComponent(extra_fee)}` +
+    `&next_visit=${encodeURIComponent(next_visit)}`;
 
-  const url =
-  `${API_URL}?action=finish_job&jobId=${jobId}` +
-  `&payment_type=${encodeURIComponent(payment_type)}` +
-  `&coupon_id=${encodeURIComponent(coupon_id)}` +
-  `&coupon_name=${encodeURIComponent(coupon_name)}` +
-  `&coupon_discount=${encodeURIComponent(coupon_discount)}` +
-  `&travel_fee=${encodeURIComponent(travel_fee)}` +   // ✅ เพิ่ม
-  `&extra_fee=${encodeURIComponent(extra_fee)}` +
-  `&next_visit=${encodeURIComponent(next_visit)}`;
-
-
+  // ✅ เลือกคูปอง
   if(coupon_id){
     url += `&coupon_id=${encodeURIComponent(coupon_id)}`;
-  }else if(manual_amount){
+  }
+  // ✅ ส่วนลดกรอกเอง
+  else if(manual_amount){
     url +=
       `&coupon_name=${encodeURIComponent(manual_name || "ส่วนลดพิเศษ")}` +
       `&coupon_discount=${encodeURIComponent(manual_amount)}`;
   }
 
-  const res = await fetch(url);
-  const data = await res.json();
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
 
-  if(data.success){
-    alert("จบงานเรียบร้อย");
-    loadJobList();
-  }else{
-    alert("ผิดพลาด: " + data.error);
-    document.getElementById("status").innerText = "เกิดข้อผิดพลาด";
+    if(data.success){
+      alert("จบงานเรียบร้อย");
+      loadJobList();
+    }else{
+      alert("ผิดพลาด: " + data.error);
+      document.getElementById("status").innerText = "เกิดข้อผิดพลาด";
+    }
+  } catch(err){
+    alert("ระบบผิดพลาด: " + err.message);
+    document.getElementById("status").innerText = "เชื่อมต่อระบบไม่ได้";
   }
 }
 
-function formatDate(d){
-  const dt = new Date(d);
-  return `${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()+543}`;
-}
 
 main();
 </script>
