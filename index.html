@@ -5,73 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Miro Member</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-
   <style>
-    body{
-      font-family: system-ui,-apple-system,Segoe UI,Roboto;
-      margin:0;
-      background:#f5f7fb;
-      color:#0b2b5a;
-    }
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto;margin:0;background:#f5f7fb;color:#0b2b5a}
     .wrap{max-width:420px;margin:0 auto;padding:16px}
-    .card{
-      background:#fff;
-      border-radius:18px;
-      padding:16px;
-      box-shadow:0 8px 22px rgba(0,0,0,.08)
-    }
-    .title{font-size:18px;font-weight:800;margin:0 0 6px}
+    .card{background:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 22px rgba(0,0,0,.08)}
+    .title{font-size:18px;font-weight:900;margin:0 0 6px}
     .muted{color:#6b7280;font-size:13px}
     .row{display:flex;gap:10px;margin-top:14px}
-    .mini{
-      flex:1;
-      background:#f3f6ff;
-      border-radius:16px;
-      padding:14px
-    }
+    .mini{flex:1;background:#f3f6ff;border-radius:16px;padding:14px}
     .mini .label{font-size:13px;color:#6b7280}
     .mini .value{font-size:26px;font-weight:900;margin:6px 0}
-    .btn{
-      width:100%;
-      border:0;
-      border-radius:14px;
-      padding:14px;
-      font-size:15px;
-      font-weight:800;
-      background:#0b63ce;
-      color:#fff;
-      margin-top:14px
-    }
-    .section-title{
-      font-size:16px;
-      font-weight:800;
-      margin:18px 0 10px
-    }
-    .coupon{
-      background:#f3f6ff;
-      border-radius:16px;
-      padding:14px;
-      margin-top:10px
-    }
-    .coupon .name{font-weight:800}
+    .pill{display:inline-block;background:#0b63ce;color:#fff;font-size:12px;padding:4px 10px;border-radius:999px;margin-top:10px}
+    .btn{width:100%;border:0;border-radius:14px;padding:14px;font-size:15px;font-weight:900;background:#0b63ce;color:#fff;margin-top:14px}
+    .section-title{font-size:16px;font-weight:900;margin:18px 0 10px}
+    .coupon{background:#f3f6ff;border-radius:16px;padding:14px;margin-top:10px}
+    .coupon .name{font-weight:900}
     .coupon .line{font-size:13px;color:#374151;margin-top:4px}
-    .empty{
-      background:#f3f6ff;
-      border-radius:14px;
-      padding:14px;
-      color:#6b7280;
-      font-size:13px
-    }
+    .empty{background:#f3f6ff;border-radius:14px;padding:14px;color:#6b7280;font-size:13px}
   </style>
 </head>
-
 <body>
 <div class="wrap">
 
-  <!-- MEMBER CARD -->
   <div class="card">
     <div class="title">บัตรสมาชิก</div>
     <div class="muted" id="status">กำลังโหลด...</div>
+    <div class="pill" id="custType">-</div>
 
     <div class="row">
       <div class="mini">
@@ -86,21 +45,26 @@
       </div>
     </div>
 
+    <div class="row">
+      <div class="mini">
+        <div class="label">แพ็กเกจรายเดือน</div>
+        <div class="value" style="font-size:18px" id="subRemain">-</div>
+        <div class="label" id="subNext">นัดถัดไป: -</div>
+      </div>
+    </div>
+
     <button class="btn" id="btnProfile">ดูข้อมูลสมาชิก</button>
   </div>
 
-  <!-- COUPON -->
   <div class="section-title">คูปองของคุณ</div>
   <div id="couponSection"></div>
 
 </div>
 
 <script>
-/* ================= CONFIG ================= */
 const LIFF_ID = "2008701497-IOxPqnn3";
 const API_URL = "https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec";
 
-/* ================= HELPER ================= */
 function formatThaiDate(iso){
   if(!iso) return "-";
   const d = new Date(iso);
@@ -109,49 +73,48 @@ function formatThaiDate(iso){
   return `${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()+543}`;
 }
 
-/* ================= MAIN ================= */
 async function main(){
   try{
     await liff.init({ liffId: LIFF_ID });
+    if(!liff.isLoggedIn()){ liff.login(); return; }
 
-    if(!liff.isLoggedIn()){
-      liff.login();
-      return;
-    }
-
-    // LINE PROFILE
     const profile = await liff.getProfile();
 
-    // MEMBER
-    const mRes = await fetch(
-      `${API_URL}?action=member&userId=${profile.userId}&name=${encodeURIComponent(profile.displayName)}`
-    );
+    const mRes = await fetch(`${API_URL}?action=member&userId=${profile.userId}&name=${encodeURIComponent(profile.displayName)}`);
     const member = await mRes.json();
+    if(member.error){ document.getElementById("status").innerText = member.error; return; }
 
-    document.getElementById("status").innerText =
-      `สวัสดีคุณ ${member.name}`;
+    document.getElementById("status").innerText = `สวัสดีคุณ ${member.name}`;
+    document.getElementById("custType").innerText = member.customer_type || "ทั่วไป";
 
-    // WALLET
-    const wRes = await fetch(
-      `${API_URL}?action=wallet&memberId=${member.member_id}`
-    );
+    const wRes = await fetch(`${API_URL}?action=wallet&memberId=${member.member_id}`);
     const wallet = await wRes.json();
+    if(wallet.error){ document.getElementById("status").innerText = wallet.error; return; }
 
-    document.getElementById("redeemPts").innerText =
-      wallet.points?.redeem ?? 0;
-    document.getElementById("levelPts").innerText =
-      wallet.points?.level ?? 0;
+    document.getElementById("redeemPts").innerText = wallet.points?.redeem ?? 0;
+    document.getElementById("levelPts").innerText  = wallet.points?.level ?? 0;
 
-    // PROFILE BUTTON
+    // subscription
+    const sub = wallet.subscription;
+    if(sub){
+      document.getElementById("subRemain").innerText = `เหลือ ${sub.remain_times} / ${sub.total_times} ครั้ง`;
+      document.getElementById("subNext").innerText   = `นัดถัดไป: ${sub.next_date || "-"}`;
+      document.getElementById("custType").innerText  = "รายเดือน";
+    }else{
+      document.getElementById("subRemain").innerText = "-";
+      document.getElementById("subNext").innerText   = "นัดถัดไป: -";
+    }
+
     document.getElementById("btnProfile").onclick = () => {
       alert(
         `ชื่อ: ${member.name}\n` +
         `รหัสสมาชิก: ${member.member_id}\n` +
-        `ระดับ: ${member.level}`
+        `ระดับ: ${member.level}\n` +
+        `ประเภทลูกค้า: ${member.customer_type || "ทั่วไป"}`
       );
     };
 
-    // COUPONS
+    // coupons
     const box = document.getElementById("couponSection");
     box.innerHTML = "";
 
@@ -164,19 +127,19 @@ async function main(){
       wallet.coupons.forEach(c=>{
         const div = document.createElement("div");
         div.className = "coupon";
+        const val = (c.discount_type === "percent") ? `${c.discount_value}%` : `${c.discount_value} บาท`;
         div.innerHTML = `
           <div class="name">${c.name}</div>
-          <div class="line">มูลค่า: ${c.type==="percent"?c.value+"%":c.value+" บาท"}</div>
-          <div class="line">ขั้นต่ำ: ${c.min||0} บาท</div>
-          <div class="line">หมดอายุ: ${formatThaiDate(c.expire)}</div>
+          <div class="line">ส่วนลด: ${val}</div>
+          <div class="line">ขั้นต่ำ: ${c.min_spend || 0} บาท</div>
+          <div class="line">หมดอายุ: ${formatThaiDate(c.expire_date)}</div>
         `;
         box.appendChild(div);
       });
     }
 
   }catch(e){
-    document.getElementById("status").innerText =
-      "เกิดข้อผิดพลาด: " + e;
+    document.getElementById("status").innerText = "เกิดข้อผิดพลาด: " + e;
   }
 }
 
