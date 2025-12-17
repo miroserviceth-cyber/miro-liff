@@ -1,222 +1,160 @@
 <!doctype html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Miro Member</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <style>
-    body{font-family:system-ui;margin:0;background:#f5f7fb;color:#0b2b5a}
-    .wrap{max-width:420px;margin:0 auto;padding:16px}
-    .card{background:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 22px rgba(0,0,0,.08)}
-    .title{font-size:18px;font-weight:900;margin:0 0 6px}
-    .muted{color:#6b7280;font-size:13px}
-    .row{display:flex;gap:10px;margin-top:14px}
-    .mini{flex:1;background:#f3f6ff;border-radius:16px;padding:14px}
-    .mini .label{font-size:13px;color:#6b7280}
-    .mini .value{font-size:26px;font-weight:900;margin:6px 0}
-    .btn{width:100%;border:0;border-radius:14px;padding:14px;font-size:15px;font-weight:900;background:#0b63ce;color:#fff;margin-top:14px}
-    .sec{margin-top:16px}
-    .box{background:#f3f6ff;border-radius:16px;padding:14px;margin-top:10px}
-    .h{font-weight:900;margin-bottom:6px}
-    .line{font-size:13px;color:#374151;margin-top:4px}
-    .pill{display:inline-block;font-size:12px;border:1px solid #dbe3f5;background:#fff;border-radius:999px;padding:4px 10px;margin-top:8px}
-    .grid{display:grid;grid-template-columns:1fr;gap:10px}
-    .btn2{width:100%;border:0;border-radius:14px;padding:14px;font-size:15px;font-weight:900;background:#16a34a;color:#fff;margin-top:10px}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Miro Member</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+<style>
+body{font-family:system-ui;margin:0;background:#f4f6fb;color:#0b2b5a}
+.wrap{max-width:420px;margin:0 auto;padding:16px}
+
+/* ===== CARD ===== */
+.card{
+  background:linear-gradient(135deg,#0b63ce,#0a3f8f);
+  color:#fff;border-radius:20px;padding:18px;
+  box-shadow:0 10px 25px rgba(0,0,0,.15)
+}
+.card .name{font-size:14px;opacity:.9}
+.card .big{font-size:42px;font-weight:900;margin:6px 0}
+.card .sub{font-size:13px;opacity:.9}
+.card .row{display:flex;justify-content:space-between;margin-top:8px}
+
+/* ===== SECTION ===== */
+.sec{margin-top:18px}
+.h{font-weight:900;margin-bottom:8px}
+.box{
+  background:#fff;border-radius:14px;
+  padding:12px;box-shadow:0 4px 12px rgba(0,0,0,.06)
+}
+.muted{color:#6b7280;font-size:13px}
+
+/* ===== COUPON SMALL ===== */
+.coupon{
+  display:flex;justify-content:space-between;
+  align-items:center;margin-top:8px
+}
+.coupon button{
+  border:0;border-radius:999px;
+  padding:6px 12px;font-size:13px;
+  background:#16a34a;color:#fff;font-weight:700
+}
+
+/* ===== COLLAPSE ===== */
+.toggle{cursor:pointer;font-weight:700}
+.hide{display:none}
+.item{border-top:1px solid #e5e7eb;padding-top:8px;margin-top:8px}
+</style>
 </head>
+
 <body>
 <div class="wrap">
-  <div class="card">
-    <div class="title">บัตรสมาชิก</div>
-    <div class="muted" id="status">กำลังโหลด...</div>
 
-    <div class="row">
-      <div class="mini">
-        <div class="label">แต้มแลกของ</div>
-        <div class="value" id="redeemPts">0</div>
-        <div class="label">หมดอายุ 90 วัน</div>
-      </div>
-      <div class="mini">
-        <div class="label">แต้มสะสททั้งหมด</div>
-        <div class="value" id="levelPts">0</div>
-        <div class="label">ไม่มีวันหมดอายุ</div>
-      </div>
-    </div>
-
-    <button class="btn" id="btnProfile">ดูข้อมูลสมาชิก</button>
-  </div>
-
-  <div class="sec">
-    <div class="title">แต้มที่จะหมดอายุ</div>
-    <div id="expireBox" class="grid"></div>
-  </div>
-
-  <div class="sec">
-    <div class="title">แลกคูปองด้วยแต้ม</div>
-    <div class="muted">เลือกคูปอง แล้วกดแลก </div>
-    <div id="redeemCatalog" class="grid"></div>
-  </div>
-
-  <div class="sec">
-    <div class="title">คูปองของคุณ</div>
-    <div id="couponBox" class="grid"></div>
-  </div>
-
-  <div class="sec">
-    <div class="title">ประวัติการใช้งาน</div>
-    <div id="historyBox" class="grid"></div>
+<!-- MEMBER CARD -->
+<div class="card">
+  <div class="name" id="memberName">สวัสดี</div>
+  <div class="big" id="redeemPts">0</div>
+  <div class="sub">แต้มแลกของ</div>
+  <div class="row">
+    <div class="sub">แต้มสะสม: <b id="levelPts">0</b></div>
+    <div class="sub" id="expireText">-</div>
   </div>
 </div>
 
-<script>
-const LIFF_ID = "2008701497-IOxPqnn3";
-const API_URL = "https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec";
+<!-- COUPON REDEEM -->
+<div class="sec">
+  <div class="h">แลกคูปอง</div>
+  <div id="redeemCatalog"></div>
+</div>
 
-function fmtThai(iso){
-  if(!iso) return "-";
-  const d = new Date(iso);
-  const m = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
-  return `${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()+543}`;
+<!-- HISTORY -->
+<div class="sec">
+  <div class="h toggle" onclick="toggle('serviceHist')">📄 ประวัติการใช้บริการ</div>
+  <div id="serviceHist" class="box hide"></div>
+</div>
+
+<div class="sec">
+  <div class="h toggle" onclick="toggle('couponHist')">🎟 ประวัติการใช้คูปอง</div>
+  <div id="couponHist" class="box hide"></div>
+</div>
+
+</div>
+
+<script>
+const LIFF_ID="2008701497-IOxPqnn3";
+const API_URL="https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec";
+
+function toggle(id){
+  document.getElementById(id).classList.toggle("hide");
+}
+
+function thai(d){
+  const x=new Date(d);
+  return `${x.getDate()}/${x.getMonth()+1}/${x.getFullYear()+543}`;
 }
 
 async function main(){
-  await liff.init({ liffId: LIFF_ID });
-  if(!liff.isLoggedIn()){ liff.login(); return; }
+  await liff.init({liffId:LIFF_ID});
+  if(!liff.isLoggedIn()){liff.login();return;}
 
-  const profile = await liff.getProfile();
+  const p=await liff.getProfile();
+  const m=await (await fetch(`${API_URL}?action=member&userId=${p.userId}&name=${p.displayName}`)).json();
+  document.getElementById("memberName").innerText=`คุณ ${m.name} • ${m.customer_type}`;
 
-  // member
-  const mRes = await fetch(`${API_URL}?action=member&userId=${profile.userId}&name=${encodeURIComponent(profile.displayName)}`);
-  const member = await mRes.json();
+  const w=await (await fetch(`${API_URL}?action=wallet&memberId=${m.member_id}`)).json();
 
-  document.getElementById("status").innerText = `สวัสดีคุณ ${member.name} • ${member.customer_type || "ทั่วไป"} • ระดับ ${member.level || "-"}`;
+  document.getElementById("redeemPts").innerText=w.points.redeem;
+  document.getElementById("levelPts").innerText=w.points.level;
 
-  // wallet
-  const wRes = await fetch(`${API_URL}?action=wallet&memberId=${member.member_id}`);
-  const wallet = await wRes.json();
+  // expire logic
+  const b=w.points_expire||[];
+  const pos=b.find(x=>x.points>0);
+  const neg=b.find(x=>x.points<0);
 
-  document.getElementById("redeemPts").innerText = wallet.points?.redeem ?? 0;
-  document.getElementById("levelPts").innerText = wallet.points?.level ?? 0;
-
-  document.getElementById("btnProfile").onclick = () => {
-    alert(
-      `ชื่อ: ${member.name}\n` +
-      `รหัสสมาชิก: ${member.member_id}\n` +
-      `ประเภทลูกค้า: ${member.customer_type || "ทั่วไป"}\n` +
-      `ระดับ: ${member.level || "-"}`
-    );
-  };
-
-  // points expire buckets
-  const expireBox = document.getElementById("expireBox");
-  expireBox.innerHTML = "";
-  const buckets = wallet.points_expire || [];
-  if(!buckets.length){
-    expireBox.innerHTML = `<div class="box"><div class="muted">ยังไม่มีแต้มที่ใกล้หมดอายุ</div></div>`;
-  }else{
-    buckets.forEach(b=>{
-      const div = document.createElement("div");
-      div.className = "box";
-      div.innerHTML = `
-        <div class="h">redeem ${b.points} แต้ม</div>
-        <div class="line">หมดอายุ: ${b.expire==="NO_EXPIRE" ? "ไม่หมดอายุ" : fmtThai(b.expire)}</div>
-      `;
-      expireBox.appendChild(div);
-    });
+  if(pos){
+    document.getElementById("expireText").innerText=`หมดอายุ ${thai(pos.expire)}`;
+  }else if(neg){
+    document.getElementById("expireText").innerText=`ใช้แต้มไปแล้ว ${Math.abs(neg.points)} แต้ม`;
   }
 
-  // redeem catalog (แสดง 3 ตัวอย่างให้กดแลก)
-  // หมายเหตุ: รายการนี้ต้อง “ตรงกับ COUPON_CATALOG ใน Apps Script”
-  const catalog = [
-    { code:"C50",  name:"คูปองส่วนลด 300 บาท",  cost:50 },
-    { code:"C100", name:"คูปองส่วนลด 100 บาท", cost:100 },
-    { code:"P10",  name:"คูปองส่วนลด 10%",     cost:150 }
+  // coupon redeem
+  const catalog=[
+    {code:"C50",name:"ลด 50 บาท",cost:50},
+    {code:"C100",name:"ลด 100 บาท",cost:100},
+    {code:"P10",name:"ลด 10%",cost:150}
   ];
-
-  const catBox = document.getElementById("redeemCatalog");
-  catBox.innerHTML = "";
+  const box=document.getElementById("redeemCatalog");
   catalog.forEach(c=>{
-    const div = document.createElement("div");
-    div.className = "box";
-    div.innerHTML = `
-      <div class="h">${c.name}</div>
-      <div class="line">ใช้ ${c.cost} แต้ม</div>
-      <button class="btn2">แลกคูปอง</button>
-    `;
-    div.querySelector("button").onclick = async ()=>{
-      if(!confirm(`ยืนยันแลก: ${c.name} ใช้ ${c.cost} แต้ม?`)) return;
-      const res = await fetch(`${API_URL}?action=redeem_coupon&memberId=${encodeURIComponent(member.member_id)}&code=${encodeURIComponent(c.code)}`);
-      const data = await res.json();
-      if(data.success){
-        alert("แลกสำเร็จ: " + data.coupon_name);
-        location.reload();
-      }else{
-        alert("แลกไม่สำเร็จ: " + (data.error || "unknown"));
-      }
+    const d=document.createElement("div");
+    d.className="box coupon";
+    d.innerHTML=`<div>${c.name}<div class="muted">ใช้ ${c.cost} แต้ม</div></div>
+      <button>แลก</button>`;
+    d.querySelector("button").onclick=async()=>{
+      if(!confirm("ยืนยันแลก?"))return;
+      await fetch(`${API_URL}?action=redeem_coupon&memberId=${m.member_id}&code=${c.code}`);
+      location.reload();
     };
-    catBox.appendChild(div);
+    box.appendChild(d);
   });
 
-  // coupons
-  const couponBox = document.getElementById("couponBox");
-  couponBox.innerHTML = "";
-  const coupons = wallet.coupons || [];
-  if(!coupons.length){
-    couponBox.innerHTML = `<div class="box"><div class="muted">ยังไม่มีคูปอง</div></div>`;
-  }else{
-    coupons.forEach(c=>{
-      const div = document.createElement("div");
-      div.className = "box";
-      div.innerHTML = `
-        <div class="h">${c.name}</div>
-        <div class="line">ส่วนลด: ${c.discount_type==="percent"? c.discount_value+"%": c.discount_value+" บาท"}</div>
-        <div class="line">ขั้นต่ำ: ${c.min_spend||0} บาท</div>
-        <div class="line">หมดอายุ: ${fmtThai(c.expire_date)}</div>
-        <div class="pill">สถานะ: ใช้ได้</div>
-      `;
-      couponBox.appendChild(div);
-    });
-  }
-
   // history
-  const hRes = await fetch(`${API_URL}?action=history&memberId=${encodeURIComponent(member.member_id)}&limit=20`);
-  const hist = await hRes.json();
+  const h=await (await fetch(`${API_URL}?action=history&memberId=${m.member_id}`)).json();
+  const s=document.getElementById("serviceHist");
+  h.receipts.forEach(r=>{
+    s.innerHTML+=`<div class="item">
+      <b>${r.service}</b><br>
+      ยอด ${r.price} บาท • ${thai(r.receipt_date)}
+    </div>`;
+  });
 
-  const historyBox = document.getElementById("historyBox");
-  historyBox.innerHTML = "";
-
-  const receipts = hist.receipts || [];
-  if(receipts.length){
-    receipts.forEach(r=>{
-      const div = document.createElement("div");
-      div.className = "box";
-      div.innerHTML = `
-        <div class="h">บริการ: ${r.service || "-"}</div>
-        <div class="line">ยอด: ${r.price||0} บาท</div>
-        <div class="line">วันที่: ${fmtThai(r.receipt_date)}</div>
-        <div class="line">เลขที่: ${r.receipt_id}</div>
-      `;
-      historyBox.appendChild(div);
-    });
-  }
-
-  const used = hist.coupons_used || [];
-  if(used.length){
-    used.forEach(u=>{
-      const div = document.createElement("div");
-      div.className = "box";
-      div.innerHTML = `
-        <div class="h">คูปองที่ใช้แล้ว: ${u.coupon_name}</div>
-        <div class="line">ใช้เมื่อ: ${fmtThai(u.used_date)}</div>
-      `;
-      historyBox.appendChild(div);
-    });
-  }
-
-  if(!receipts.length && !used.length){
-    historyBox.innerHTML = `<div class="box"><div class="muted">ยังไม่มีประวัติ</div></div>`;
-  }
+  const c=document.getElementById("couponHist");
+  h.coupons_used.forEach(x=>{
+    c.innerHTML+=`<div class="item">
+      ${x.coupon_name}<br>
+      ใช้เมื่อ ${thai(x.used_date)}
+    </div>`;
+  });
 }
 main();
 </script>
