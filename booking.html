@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>จองบริการ</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+body{margin:0;font-family:system-ui;background:#f5f7fb}
+.wrap{max-width:420px;margin:auto;padding:16px}
+.card{background:#fff;border-radius:16px;padding:16px;
+box-shadow:0 8px 20px rgba(0,0,0,.08)}
+input,select,textarea{
+width:100%;padding:12px;border-radius:12px;
+border:1px solid #e5e7eb;margin-top:6px}
+button{
+margin-top:14px;width:100%;padding:12px;
+border-radius:14px;border:none;
+background:#0A1A3E;color:#fff;font-weight:800}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="card">
+<h3>จองบริการ</h3>
+
+<select id="service">
+<option>ทำความสะอาดบ้าน</option>
+<option>ทำความสะอาดคอนโด</option>
+<option>Big Cleaning</option>
+</select>
+
+<textarea id="detail" placeholder="รายละเอียดเพิ่มเติม"></textarea>
+<input type="date" id="date">
+<input type="time" id="time">
+
+<button onclick="submit()">ยืนยันการจอง</button>
+</div>
+</div>
+
+<script>
+let USER
+
+async function init(){
+  await liff.init({ liffId:"YOUR_LIFF_ID" })
+  if(!liff.isLoggedIn()){ liff.login(); return }
+  USER = await liff.getProfile()
+}
+async function submit(){
+  const body = {
+    action:"create_booking",
+    line_user_id: USER.userId,
+    name: USER.displayName,
+    service_type: service.value,
+    service_detail: detail.value,
+    booking_date: date.value,
+    booking_time: time.value
+  }
+  await fetch("YOUR_WEBAPP_URL",{
+    method:"POST",
+    body:JSON.stringify(body)
+  })
+  liff.closeWindow()
+}
+init()
+</script>
+</body>
+</html>
