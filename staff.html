@@ -61,7 +61,6 @@ async function main(){
       return;
     }
 
-    // ตอนนี้ยังดึงงานแบบง่าย (1 งานล่าสุด)
     const res = await fetch(`${API_URL}?action=staff_job`);
     const job = await res.json();
 
@@ -70,12 +69,17 @@ async function main(){
       return;
     }
 
+    if(!job.job_id){
+      document.getElementById("status").innerText = "ข้อมูลงานไม่สมบูรณ์";
+      return;
+    }
+
     document.getElementById("status").innerText = "แตะเพื่อจบงาน";
 
     const box = document.getElementById("jobBox");
     box.innerHTML = `
       <div class="job">
-        <b>${job.service_name}</b><br>
+        <b>${job.service}</b><br>
         ราคา ${job.price} บาท
         <button class="btn" onclick="finishJob('${job.job_id}')">
           จบงาน
@@ -99,10 +103,10 @@ async function finishJob(jobId){
   const data = await res.json();
 
   if(data.success){
-    document.getElementById("status").innerText = "จบงานเรียบร้อย";
+    document.getElementById("status").innerText = "จบงานเรียบร้อย ระบบส่งใบเสร็จให้ลูกค้าแล้ว";
     document.getElementById("jobBox").innerHTML = "";
   }else{
-    document.getElementById("status").innerText = "เกิดข้อผิดพลาด";
+    document.getElementById("status").innerText = data.error || "เกิดข้อผิดพลาด";
   }
 }
 
