@@ -24,7 +24,7 @@ async function init(){
   await liff.init({ liffId:"2008701497-TNWE13lt" })
   if(!liff.isLoggedIn()){ liff.login(); return }
 
-  const res = await fetch("YOUR_WEBAPP_URL?action=promo_list")
+  const res = await fetch("https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec?page=promo")
   const data = await res.json()
   render(data)
 }
