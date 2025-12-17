@@ -1,86 +1,58 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MIRO Staff – ประวัติงาน</title>
-  <style>
-    body{font-family:system-ui,Segoe UI,Arial; margin:16px; background:#0b1220; color:#e5e7eb;}
-    .card{background:#111827; border:1px solid #1f2937; border-radius:14px; padding:14px; margin:12px 0;}
-    select,input{width:100%; padding:10px; border-radius:10px; border:1px solid #334155; background:#0b1220; color:#e5e7eb;}
-    button{width:100%; padding:12px; border-radius:12px; border:0; background:#fbbf24; font-weight:700; margin-top:10px;}
-    .muted{color:#94a3b8; font-size:13px;}
-    .item{border-top:1px solid #1f2937; padding:10px 0;}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MIRO Staff – ประวัติงาน</title>
+<style>
+body{font-family:system-ui;background:#0b1220;color:#e5e7eb;margin:16px}
+.card{background:#111827;border:1px solid #1f2937;border-radius:14px;padding:14px;margin-bottom:14px}
+button,input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #334155;background:#0b1220;color:#e5e7eb}
+.item{border-top:1px solid #1f2937;padding:10px 0}
+</style>
 </head>
 <body>
-  <h2>MIRO Staff – ประวัติงาน</h2>
 
-  <div class="card">
-    <div class="muted">ใช้ STAFF_KEY เดียวกับหน้าแรก</div>
+<h2>ประวัติงานพนักงาน</h2>
 
-    <label>สถานะ</label>
-    <select id="status">
-      <option value="pending">pending</option>
-      <option value="done">done</option>
-      <option value="all">all</option>
-    </select>
+<div class="card">
+  <select id="status">
+    <option value="pending">pending</option>
+    <option value="done">done</option>
+    <option value="all">all</option>
+  </select>
+  <input id="limit" value="30">
+  <button onclick="load()">โหลด</button>
+  <button onclick="back()">กลับ</button>
+</div>
 
-    <label style="margin-top:10px;">จำนวนรายการ</label>
-    <input id="limit" inputmode="numeric" value="30" />
-
-    <button onclick="load()">โหลดรายการ</button>
-    <button onclick="back()">กลับหน้าหลัก</button>
-  </div>
-
-  <div class="card">
-    <h3>รายการงาน</h3>
-    <div id="list" class="muted">ยังไม่มีข้อมูล</div>
-  </div>
+<div class="card" id="list">-</div>
 
 <script>
-  const API_BASE = "https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec";
+const API_BASE="https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec";
+function qs(o){return new URLSearchParams(o).toString();}
+function key(){return localStorage.getItem("MIRO_STAFF_KEY")||"";}
 
-  function getKey(){
-    return localStorage.getItem("MIRO_STAFF_KEY") || "";
-  }
-  function qs(obj){
-    const u = new URLSearchParams(obj);
-    return u.toString();
-  }
-
-  async function load(){
-    const key = getKey();
-    const status = document.getElementById("status").value;
-    const limit = document.getElementById("limit").value.trim() || "30";
-
-    const url = API_BASE + "?" + qs({action:"staff_jobs", key, status, limit});
-    const r = await fetch(url);
-    const j = await r.json();
-
-    const el = document.getElementById("list");
-    if(j.error){
-      el.innerHTML = j.error;
-      return;
-    }
-    if(!j.items || !j.items.length){
-      el.innerHTML = "ไม่พบรายการ";
-      return;
-    }
-
-    el.innerHTML = j.items.map(x => `
-      <div class="item">
-        <b>${x.job_id}</b> (${x.status})<br>
-        ลูกค้า: ${x.customer_name || "-"}<br>
-        บริการ: ${x.service_name || "-"}<br>
-        วันที่: ${x.job_date || "-"}<br>
-        ราคา: ${x.price} | เดินทาง: ${x.travel_fee}<br>
-        Receipt: ${x.receipt_id || "-"}
-      </div>
-    `).join("");
-  }
-
-  function back(){ window.location.href = "staff-1.html"; }
+async function load(){
+  const r = await fetch(API_BASE+"?"+qs({
+    action:"staff_jobs",
+    key:key(),
+    status:status.value,
+    limit:limit.value
+  }));
+  const j = await r.json();
+  if(j.error){list.innerHTML=j.error;return;}
+  list.innerHTML=j.items.map(x=>`
+    <div class="item">
+      <b>${x.job_id}</b> (${x.status})<br>
+      ลูกค้า: ${x.customer_name}<br>
+      บริการ: ${x.service_name}<br>
+      วันที่: ${x.job_date}<br>
+      Receipt: ${x.receipt_id||"-"}
+    </div>
+  `).join("");
+}
+function back(){location.href="staff.html";}
 </script>
 </body>
 </html>
