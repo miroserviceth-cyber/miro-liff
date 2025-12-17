@@ -11,17 +11,15 @@
     body{font-family:system-ui;margin:0;background:#f5f7fb;color:#0b2b5a}
     .wrap{max-width:420px;margin:0 auto;padding:16px}
     .card{background:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 22px rgba(0,0,0,.08)}
-    .title{font-size:18px;font-weight:900;margin:0 0 8px}
+    .title{font-size:18px;font-weight:900;margin-bottom:8px}
     .muted{color:#6b7280;font-size:13px}
 
     .job{background:#f3f6ff;border-radius:16px;padding:14px;margin-top:12px;cursor:pointer}
     .line{font-size:13px;color:#374151;margin-top:6px}
 
     .input{width:100%;padding:12px;border-radius:12px;border:1px solid #dbe3f5;margin-top:10px}
-
     .btn{width:100%;border:0;border-radius:14px;padding:14px;font-size:15px;font-weight:900;margin-top:12px}
     .btn-green{background:#16a34a;color:#fff}
-    .btn-blue{background:#0b63ce;color:#fff}
     .btn-gray{background:#6b7280;color:#fff}
   </style>
 </head>
@@ -29,46 +27,28 @@
 <body>
 <div class="wrap">
   <div class="card">
-
     <div class="title">งานของวันนี้</div>
     <div class="muted" id="status">กำลังโหลด...</div>
 
-    <!-- =================== -->
-    <!-- หน้าเลือกงาน -->
-    <!-- =================== -->
     <div id="jobListView"></div>
-
-    <!-- =================== -->
-    <!-- หน้ารายละเอียดงาน -->
-    <!-- =================== -->
     <div id="jobDetailView" style="display:none"></div>
-
   </div>
 </div>
 
 <script>
-/* ==============================
-   CONFIG
-================================ */
-const LIFF_ID = "2008701497-NW5Xis1n";
-const API_URL = "https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec";
+const LIFF_ID = "PUT_YOUR_LIFF_ID";
+const API_URL = "PUT_YOUR_SCRIPT_URL";
 
-/* ==============================
-   INIT
-================================ */
+/* ================= INIT ================= */
 async function main(){
   await liff.init({ liffId: LIFF_ID });
   if(!liff.isLoggedIn()){
-    liff.login();
-    return;
+    liff.login(); return;
   }
   loadJobList();
 }
 
-/* ==============================
-   โหลดรายการงานทั้งหมด
-   ใช้ action=staff_jobs
-================================ */
+/* ================= LOAD JOB LIST ================= */
 async function loadJobList(){
   document.getElementById("status").innerText = "กำลังโหลดงาน...";
   document.getElementById("jobListView").style.display = "block";
@@ -93,36 +73,27 @@ async function loadJobList(){
     div.innerHTML = `
       <div style="font-weight:900">${job.service_name}</div>
       <div class="line">ลูกค้า: ${job.customer_name || "-"}</div>
-      <div class="line">ที่อยู่: ${job.customer_address || "-"}</div>
-      <div class="line">ประเภทลูกค้า: ${job.customer_type}</div>
+      <div class="line">ประเภท: ${job.customer_type}</div>
       <div class="line">รายเดือนคงเหลือ: ${job.remain_times || 0} ครั้ง</div>
       <div class="line">ราคา: ${job.price} บาท</div>
     `;
-    div.onclick = ()=> openJobDetail(job.job_id);
+    div.onclick = ()=> openJobDetail(job);
     box.appendChild(div);
   });
 }
 
-/* ==============================
-   เปิดดูรายละเอียดงาน
-   ใช้ action=job_detail
-================================ */
-async function openJobDetail(jobId){
-  document.getElementById("status").innerText = "กำลังโหลดรายละเอียดงาน...";
+/* ================= JOB DETAIL ================= */
+async function openJobDetail(job){
   document.getElementById("jobListView").style.display = "none";
   document.getElementById("jobDetailView").style.display = "block";
-
-  const res = await fetch(`${API_URL}?action=job_detail&jobId=${jobId}`);
-  const job = await res.json();
+  document.getElementById("status").innerText = "ตรวจสอบข้อมูลก่อนจบงาน";
 
   const box = document.getElementById("jobDetailView");
   box.innerHTML = `
     <div class="job">
       <div style="font-weight:900">${job.service_name}</div>
       <div class="line">ลูกค้า: ${job.customer_name}</div>
-      <div class="line">ที่อยู่: ${job.customer_address}</div>
       <div class="line">ประเภทลูกค้า: ${job.customer_type}</div>
-      <div class="line">รายเดือนคงเหลือ: ${job.remain_times || 0} ครั้ง</div>
 
       <select id="payment_type" class="input">
         <option value="">ไม่เปลี่ยนประเภทการชำระเงิน</option>
@@ -130,51 +101,105 @@ async function openJobDetail(jobId){
         <option value="โอน">โอน</option>
       </select>
 
-      <input id="coupon_name" class="input" placeholder="ชื่อคูปอง (ถ้ามี)">
-      <input id="coupon_discount" class="input" type="number" placeholder="ส่วนลด (บาท)">
-      <input id="extra_fee" class="input" type="number" placeholder="ค่าเพิ่มหน้างาน">
-      <input id="next_visit" class="input" type="date" placeholder="นัดครั้งถัดไป (YYYY-MM-DD)">
+      <hr style="margin:14px 0">
 
-      <button class="btn btn-green" onclick="finishJob('${job.job_id}')">จบงาน</button>
+      <div class="muted">เลือกคูปอง (ถ้ามี)</div>
+      <select id="coupon_id" class="input">
+        <option value="">ไม่ใช้คูปอง</option>
+      </select>
+      <div id="coupon_info" class="muted"></div>
+
+      <hr style="margin:14px 0">
+
+      <div class="muted">หรือใช้ส่วนลดพิเศษ</div>
+      <input id="manual_discount_name" class="input" placeholder="ชื่อโปร / ส่วนลดพิเศษ">
+      <input id="manual_discount_amount" class="input" type="number" placeholder="จำนวนเงินส่วนลด (บาท)">
+
+      <input id="extra_fee" class="input" type="number" placeholder="ค่าเพิ่มหน้างาน">
+      <input id="next_visit" class="input" type="date">
+
+      <button class="btn btn-green" onclick="finishJob('${job.job_id}','${job.member_id}')">จบงาน</button>
       <button class="btn btn-gray" onclick="loadJobList()">ย้อนกลับ</button>
     </div>
   `;
 
-  document.getElementById("status").innerText = "ตรวจสอบข้อมูลแล้วกดจบงาน";
+  loadCouponsForStaff(job.member_id);
 }
 
-/* ==============================
-   จบงาน
-================================ */
-async function finishJob(jobId){
+/* ================= LOAD COUPONS ================= */
+async function loadCouponsForStaff(memberId){
+  const res = await fetch(`${API_URL}?action=staff_coupons&memberId=${memberId}`);
+  const coupons = await res.json();
+
+  const sel = document.getElementById("coupon_id");
+  const info = document.getElementById("coupon_info");
+
+  if(!Array.isArray(coupons) || coupons.length === 0){
+    info.innerText = "ไม่มีคูปองที่ใช้ได้";
+    return;
+  }
+
+  coupons.forEach(c=>{
+    const opt = document.createElement("option");
+    opt.value = c.coupon_id;
+    opt.dataset.discount = c.discount_value;
+    opt.textContent = `${c.name} (หมดอายุ ${formatDate(c.expire_date)})`;
+    sel.appendChild(opt);
+  });
+
+  sel.onchange = ()=>{
+    if(sel.value){
+      document.getElementById("manual_discount_name").value = "";
+      document.getElementById("manual_discount_amount").value = "";
+      info.innerText = "ใช้คูปองจากระบบ";
+    }else{
+      info.innerText = "";
+    }
+  };
+}
+
+/* ================= FINISH JOB ================= */
+async function finishJob(jobId, memberId){
   if(!confirm("ยืนยันจบงานนี้?")) return;
 
   document.getElementById("status").innerText = "กำลังจบงาน...";
 
   const payment_type = document.getElementById("payment_type").value;
-  const coupon_name = document.getElementById("coupon_name").value;
-  const coupon_discount = document.getElementById("coupon_discount").value;
+  const coupon_id = document.getElementById("coupon_id").value;
+  const manual_name = document.getElementById("manual_discount_name").value;
+  const manual_amount = document.getElementById("manual_discount_amount").value;
   const extra_fee = document.getElementById("extra_fee").value;
   const next_visit = document.getElementById("next_visit").value;
 
-  const url =
+  let url =
     `${API_URL}?action=finish_job&jobId=${jobId}` +
     `&payment_type=${encodeURIComponent(payment_type)}` +
-    `&coupon_name=${encodeURIComponent(coupon_name)}` +
-    `&coupon_discount=${encodeURIComponent(coupon_discount)}` +
     `&extra_fee=${encodeURIComponent(extra_fee)}` +
     `&next_visit=${encodeURIComponent(next_visit)}`;
+
+  if(coupon_id){
+    url += `&coupon_id=${encodeURIComponent(coupon_id)}`;
+  }else if(manual_amount){
+    url +=
+      `&coupon_name=${encodeURIComponent(manual_name || "ส่วนลดพิเศษ")}` +
+      `&coupon_discount=${encodeURIComponent(manual_amount)}`;
+  }
 
   const res = await fetch(url);
   const data = await res.json();
 
   if(data.success){
     alert("จบงานเรียบร้อย");
-    loadJobList(); // กลับไปหน้าเลือกงาน
+    loadJobList();
   }else{
     alert("ผิดพลาด: " + data.error);
     document.getElementById("status").innerText = "เกิดข้อผิดพลาด";
   }
+}
+
+function formatDate(d){
+  const dt = new Date(d);
+  return `${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()+543}`;
 }
 
 main();
