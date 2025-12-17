@@ -115,7 +115,7 @@ async function openJobDetail(job){
       <input id="manual_discount_name" class="input" placeholder="ชื่อโปร / ส่วนลดพิเศษ">
       <input id="manual_discount_amount" class="input" type="number" placeholder="จำนวนเงินส่วนลด (บาท)">
       <input id="extra_fee" class="input" type="number" placeholder="เพิ่มหน้างาน">
-      <input id="travel_fee" class="input" type="number" placeholder="ค่าเดินทาง">
+      <input id="travel_fee" class="input" type="number" placeholder="ค่าเดินทาง (บาท)">
       <input id="next_visit" class="input" type="date">
 
       <button class="btn btn-green" onclick="finishJob('${job.job_id}','${job.member_id}')">จบงาน</button>
@@ -170,12 +170,19 @@ async function finishJob(jobId, memberId){
   const manual_amount = document.getElementById("manual_discount_amount").value;
   const extra_fee = document.getElementById("extra_fee").value;
   const next_visit = document.getElementById("next_visit").value;
+  const travel_fee = document.getElementById("travel_fee").value;
 
-  let url =
-    `${API_URL}?action=finish_job&jobId=${jobId}` +
-    `&payment_type=${encodeURIComponent(payment_type)}` +
-    `&extra_fee=${encodeURIComponent(extra_fee)}` +
-    `&next_visit=${encodeURIComponent(next_visit)}`;
+
+  const url =
+  `${API_URL}?action=finish_job&jobId=${jobId}` +
+  `&payment_type=${encodeURIComponent(payment_type)}` +
+  `&coupon_id=${encodeURIComponent(coupon_id)}` +
+  `&coupon_name=${encodeURIComponent(coupon_name)}` +
+  `&coupon_discount=${encodeURIComponent(coupon_discount)}` +
+  `&travel_fee=${encodeURIComponent(travel_fee)}` +   // ✅ เพิ่ม
+  `&extra_fee=${encodeURIComponent(extra_fee)}` +
+  `&next_visit=${encodeURIComponent(next_visit)}`;
+
 
   if(coupon_id){
     url += `&coupon_id=${encodeURIComponent(coupon_id)}`;
