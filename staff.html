@@ -1,152 +1,117 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MIRO Staff – งานล่าสุด</title>
-  <style>
-    body{font-family:system-ui,Segoe UI,Arial; margin:16px; background:#0b1220; color:#e5e7eb;}
-    .card{background:#111827; border:1px solid #1f2937; border-radius:14px; padding:14px; margin:12px 0;}
-    input,select{width:100%; padding:10px; border-radius:10px; border:1px solid #334155; background:#0b1220; color:#e5e7eb;}
-    button{width:100%; padding:12px; border-radius:12px; border:0; background:#fbbf24; font-weight:700; margin-top:10px;}
-    .muted{color:#94a3b8; font-size:13px;}
-    .row{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
-    .ok{color:#22c55e;} .bad{color:#ef4444;}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MIRO Staff – งานล่าสุด</title>
+<style>
+body{font-family:system-ui;background:#0b1220;color:#e5e7eb;margin:16px}
+.card{background:#111827;border:1px solid #1f2937;border-radius:14px;padding:14px;margin-bottom:14px}
+input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #334155;background:#0b1220;color:#e5e7eb}
+button{width:100%;padding:12px;border-radius:12px;border:0;background:#fbbf24;font-weight:700;margin-top:10px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.muted{color:#94a3b8;font-size:13px}
+.ok{color:#22c55e}.bad{color:#ef4444}
+</style>
 </head>
 <body>
-  <h2>MIRO Staff – งานล่าสุด</h2>
 
-  <div class="card">
-    <h3>เข้าสู่ระบบ (Access Key)</h3>
-    <div class="muted">ต้องใส่ STAFF_KEY ถึงจะใช้งานได้</div>
-    <input id="staffKey" placeholder="ใส่ STAFF_KEY" />
-    <button onclick="saveKey()">บันทึก Key</button>
-    <div id="keyState" class="muted" style="margin-top:8px;"></div>
+<h2>MIRO Staff – งานล่าสุด</h2>
+
+<div class="card">
+  <div class="muted">ใส่ STAFF_KEY (จำกัดสิทธิ์พนักงาน)</div>
+  <input id="staffKey" placeholder="STAFF_KEY">
+  <button onclick="saveKey()">บันทึก Key</button>
+  <div id="keyState" class="muted"></div>
+</div>
+
+<div class="card">
+  <div class="row">
+    <button onclick="loadJob()">ดึงงานล่าสุด</button>
+    <button onclick="goHistory()">ดูประวัติงาน</button>
   </div>
+  <div id="jobBox" class="muted">ยังไม่ได้โหลดงาน</div>
+</div>
 
-  <div class="card">
-    <div class="row">
-      <button onclick="loadJob()">ดึงงานล่าสุด</button>
-      <button onclick="goHistory()">ไปหน้าประวัติงาน</button>
-    </div>
-    <div id="jobBox" class="muted" style="margin-top:10px;">ยังไม่ได้โหลดงาน</div>
-  </div>
+<div class="card">
+  <h3>ปิดงาน</h3>
 
-  <div class="card">
-    <h3>ปิดงาน (Finish Job)</h3>
+  <label>Job ID</label>
+  <input id="jobId">
 
-    <label>Job ID</label>
-    <input id="jobId" placeholder="เช่น J123..." />
+  <label>ประเภทการชำระเงิน</label>
+  <select id="payType">
+    <option value="">-</option>
+    <option>เงินสด</option>
+    <option>โอน</option>
+    <option>อื่นๆ</option>
+  </select>
 
-    <label style="margin-top:10px;">ประเภทการชำระเงิน</label>
-    <select id="payType">
-      <option value="">-</option>
-      <option>เงินสด</option>
-      <option>โอน</option>
-      <option>อื่นๆ</option>
-    </select>
+  <label>Coupon ID (ถ้ามี)</label>
+  <input id="couponId">
 
-    <div class="row" style="margin-top:10px;">
-      <div>
-        <label>คูปอง (Coupon ID)</label>
-        <input id="couponId" placeholder="เช่น Cxxxx" />
-      </div>
-      <div>
-        <label>ส่วนลด (บาท)</label>
-        <input id="couponDiscount" inputmode="numeric" placeholder="0" />
-      </div>
-    </div>
+  <label>ชื่อคูปอง</label>
+  <input id="couponName">
 
-    <label style="margin-top:10px;">ชื่อคูปอง (ถ้ามี)</label>
-    <input id="couponName" placeholder="เช่น ส่วนลด 100 บาท" />
+  <label>ส่วนลด (บาท)</label>
+  <input id="couponDiscount" value="0">
 
-    <label style="margin-top:10px;">ค่าเพิ่มหน้างาน</label>
-    <input id="extraFee" inputmode="numeric" placeholder="0" />
+  <label>ค่าเพิ่มหน้างาน</label>
+  <input id="extraFee" value="0">
 
-    <label style="margin-top:10px;">นัดครั้งถัดไป (YYYY-MM-DD หรือข้อความ)</label>
-    <input id="nextVisit" placeholder="เช่น 2025-12-20 หรือ พรุ่งนี้ 10:00" />
+  <label>นัดถัดไป (YYYY-MM-DD หรือข้อความ)</label>
+  <input id="nextVisit">
 
-    <button onclick="finish()">ปิดงาน + ส่งสรุปให้ลูกค้า</button>
-    <div id="result" class="muted" style="margin-top:10px;"></div>
-  </div>
+  <button onclick="finish()">ปิดงาน + ส่งสรุป</button>
+  <div id="result" class="muted"></div>
+</div>
 
 <script>
-  const API_BASE = "https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec";
+const API_BASE = "https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec";
 
-  function getKey(){
-    return localStorage.getItem("MIRO_STAFF_KEY") || "";
-  }
-  function saveKey(){
-    const k = document.getElementById("staffKey").value.trim();
-    localStorage.setItem("MIRO_STAFF_KEY", k);
-    renderKeyState();
-  }
-  function renderKeyState(){
-    const k = getKey();
-    document.getElementById("keyState").innerHTML = k ? "ตั้งค่าแล้ว" : "ยังไม่ได้ตั้งค่า";
-  }
+function saveKey(){
+  localStorage.setItem("MIRO_STAFF_KEY",staffKey.value.trim());
+  renderKey();
+}
+function renderKey(){
+  keyState.innerHTML = localStorage.getItem("MIRO_STAFF_KEY") ? "ตั้งค่าแล้ว" : "ยังไม่ตั้งค่า";
+}
+function qs(o){return new URLSearchParams(o).toString();}
+function key(){return localStorage.getItem("MIRO_STAFF_KEY")||"";}
 
-  function qs(obj){
-    const u = new URLSearchParams(obj);
-    return u.toString();
-  }
+async function loadJob(){
+  const r = await fetch(API_BASE+"?"+qs({action:"staff_job",key:key()}));
+  const j = await r.json();
+  if(j.error){jobBox.innerHTML=j.error;return;}
+  jobBox.innerHTML = `
+    <b>${j.job_id}</b><br>
+    ลูกค้า: ${j.customer_name}<br>
+    ที่อยู่: ${j.customer_address}<br>
+    บริการ: ${j.service_name}<br>
+    ราคา: ${j.price} | เดินทาง: ${j.travel_fee}
+  `;
+  jobId.value=j.job_id;
+}
 
-  async function loadJob(){
-    const key = getKey();
-    const url = API_BASE + "?" + qs({action:"staff_job", key});
-    const r = await fetch(url);
-    const j = await r.json();
-    const box = document.getElementById("jobBox");
+async function finish(){
+  const data={
+    action:"finish_job",
+    key:key(),
+    jobId:jobId.value,
+    payment_type:payType.value,
+    coupon_id:couponId.value,
+    coupon_name:couponName.value,
+    coupon_discount:couponDiscount.value,
+    extra_fee:extraFee.value,
+    next_visit:nextVisit.value
+  };
+  const r = await fetch(API_BASE+"?"+qs(data));
+  const j = await r.json();
+  result.innerHTML = j.success ? "สำเร็จ "+j.receipt_id : j.error;
+}
 
-    if(j.error){
-      box.innerHTML = `<span class="bad">${j.error}</span>`;
-      return;
-    }
-
-    box.innerHTML =
-      `<b>Job:</b> ${j.job_id}<br>`+
-      `<b>ลูกค้า:</b> ${j.customer_name}<br>`+
-      `<b>ที่อยู่:</b> ${j.customer_address}<br>`+
-      `<b>บริการ:</b> ${j.service_name}<br>`+
-      `<b>ราคา:</b> ${j.price} | <b>ค่าเดินทาง:</b> ${j.travel_fee}<br>`+
-      `<b>วันที่งาน:</b> ${j.job_date || "-"}<br>`+
-      `<b>สถานะ:</b> ${j.status}`;
-
-    document.getElementById("jobId").value = j.job_id || "";
-  }
-
-  async function finish(){
-    const key = getKey();
-    const data = {
-      action:"finish_job",
-      key,
-      jobId: document.getElementById("jobId").value.trim(),
-      payment_type: document.getElementById("payType").value.trim(),
-      coupon_id: document.getElementById("couponId").value.trim(),
-      coupon_name: document.getElementById("couponName").value.trim(),
-      coupon_discount: document.getElementById("couponDiscount").value.trim(),
-      extra_fee: document.getElementById("extraFee").value.trim(),
-      next_visit: document.getElementById("nextVisit").value.trim(),
-    };
-
-    const url = API_BASE + "?" + qs(data);
-    const r = await fetch(url);
-    const j = await r.json();
-
-    const el = document.getElementById("result");
-    if(j.success){
-      el.innerHTML = `<span class="ok">สำเร็จ</span> Receipt: ${j.receipt_id}`;
-    }else{
-      el.innerHTML = `<span class="bad">ผิดพลาด</span> ${j.error || JSON.stringify(j)}`;
-    }
-  }
-
-  function goHistory(){
-    window.location.href = "staff-2.html";
-  }
-
-  renderKeyState();
+function goHistory(){location.href="staff-2.html";}
+renderKey();
 </script>
 </body>
 </html>
