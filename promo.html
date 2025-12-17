@@ -1,50 +1,138 @@
 <!doctype html>
 <html lang="th">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>โปรโมชั่น</title>
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<style>
-body{margin:0;font-family:system-ui;background:#f5f7fb}
-.wrap{max-width:420px;margin:auto;padding:16px}
-.card{background:#fff;border-radius:16px;overflow:hidden;
-box-shadow:0 8px 20px rgba(0,0,0,.08)}
-.img{width:100%;height:200px;object-fit:cover}
-.pad{padding:14px}
-.title{font-weight:800}
-.desc{font-size:14px;color:#475569;margin-top:6px}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>โปรโมชั่น</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    :root{
+      --bg:#eaf4ff;
+      --card:#ffffff;
+      --ink:#0b2b5a;
+      --muted:#47627a;
+      --line:#cfe8ff;
+      --primary:#0284c7;
+    }
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto;background:var(--bg);color:var(--ink)}
+    .wrap{max-width:520px;margin:0 auto;padding:16px}
+    .head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px}
+    .title{font-size:18px;font-weight:900;margin:0}
+    .sub{font-size:13px;color:var(--muted);margin-top:6px}
+    .list{display:grid;grid-template-columns:1fr;gap:12px}
+    .card{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 10px 22px rgba(0,0,0,.08);border:1px solid var(--line);cursor:pointer}
+    .img{width:100%;height:190px;object-fit:cover;background:#dbeafe}
+    .pad{padding:14px}
+    .ctitle{font-weight:900}
+    .cdesc{margin-top:6px;font-size:13px;line-height:1.5;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .empty{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;color:var(--muted)}
+    .err{background:#fff;border:1px solid #fecaca;border-radius:16px;padding:16px;color:#991b1b}
+
+    /* modal */
+    .back{position:fixed;inset:0;background:rgba(2,6,23,.55);display:none;align-items:flex-end;justify-content:center;padding:16px}
+    .modal{width:100%;max-width:520px;background:#fff;border-radius:18px 18px 0 0;max-height:78vh;overflow:auto}
+    .mhead{display:flex;justify-content:space-between;align-items:center;padding:14px;border-bottom:1px solid var(--line)}
+    .mx{font-weight:900;cursor:pointer;color:var(--primary)}
+    .mbody{padding:14px}
+    .mimg{width:100%;height:220px;object-fit:cover;border-radius:14px;background:#dbeafe}
+    .mtitle{margin-top:12px;font-weight:900;font-size:16px}
+    .mdesc{margin-top:8px;font-size:14px;line-height:1.6;color:#0f172a;white-space:pre-wrap}
+    .btn{margin-top:14px;width:100%;padding:12px 14px;border-radius:14px;border:0;background:var(--primary);color:#fff;font-weight:900;cursor:pointer}
+  </style>
 </head>
 <body>
-<div class="wrap" id="list"></div>
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <h1 class="title">โปรโมชั่น</h1>
+        <div class="sub">โปรที่เปิดใช้งานจะแสดงอัตโนมัติ</div>
+      </div>
+    </div>
+
+    <div id="msg"></div>
+    <div id="list" class="list"></div>
+  </div>
+
+  <div id="back" class="back" onclick="hideModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="mhead">
+        <div style="font-weight:900">รายละเอียดโปรโมชัน</div>
+        <div class="mx" onclick="hideModal()">ปิด</div>
+      </div>
+      <div class="mbody">
+        <img id="mimg" class="mimg" src="" alt="">
+        <div id="mtitle" class="mtitle"></div>
+        <div id="mdesc" class="mdesc"></div>
+        <button class="btn" onclick="hideModal()">กลับ</button>
+      </div>
+    </div>
+  </div>
 
 <script>
-async function init(){
-  await liff.init({ liffId:"2008701497-TNWE13lt" })
-  if(!liff.isLoggedIn()){ liff.login(); return }
+  const WEBAPP = location.href.split('?')[0]; // exec url เดียวกัน
+  const LIFF_ID = "2008701497-TNWE13lt";
 
-  const res = await fetch("https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec?page=promo")
-  const data = await res.json()
-  render(data)
-}
+  let promos = [];
 
-function render(items){
-  const el = document.getElementById("list")
-  items.forEach(p=>{
-    el.innerHTML += `
-      <div class="card">
-        <img class="img" src="${p.image_url}">
-        <div class="pad">
-          <div class="title">${p.title}</div>
-          <div class="desc">${p.description}</div>
-        </div>
-      </div><br>
-    `
-  })
-}
+  async function init(){
+    await liff.init({ liffId: LIFF_ID });
+    if(!liff.isLoggedIn()){ liff.login(); return; }
+    await loadPromos();
+  }
 
-init()
+  async function loadPromos(){
+    const list = document.getElementById('list');
+    const msg = document.getElementById('msg');
+    list.innerHTML = '';
+    msg.innerHTML = '';
+
+    try{
+      const url = WEBAPP + '?action=promo_list';
+      const r = await fetch(url, { method:'GET' });
+      const data = await r.json();
+
+      if(Array.isArray(data) && data.length){
+        promos = data;
+        data.forEach((p, idx)=>{
+          const el = document.createElement('div');
+          el.className = 'card';
+          el.onclick = ()=>openModal(idx);
+
+          const img = p.image_url ? `<img class="img" src="${escapeHtml(p.image_url)}" onerror="this.style.display='none'">` : '';
+          el.innerHTML = `
+            ${img}
+            <div class="pad">
+              <div class="ctitle">${escapeHtml(p.title || '')}</div>
+              <div class="cdesc">${escapeHtml(p.description || '')}</div>
+            </div>
+          `;
+          list.appendChild(el);
+        });
+      }else{
+        msg.innerHTML = `<div class="empty">ขณะนี้ยังไม่มีโปรโมชันที่เปิดใช้งาน</div>`;
+      }
+    }catch(e){
+      msg.innerHTML = `<div class="err">โหลดโปรโมชันไม่สำเร็จ: ${escapeHtml(String(e))}</div>`;
+    }
+  }
+
+  function openModal(idx){
+    const p = promos[idx];
+    document.getElementById('mimg').src = p.image_url || '';
+    document.getElementById('mtitle').textContent = p.title || '';
+    document.getElementById('mdesc').textContent = p.description || '';
+    document.getElementById('back').style.display = 'flex';
+  }
+
+  function hideModal(){
+    document.getElementById('back').style.display = 'none';
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+  }
+
+  init();
 </script>
 </body>
 </html>
