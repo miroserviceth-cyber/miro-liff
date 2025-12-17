@@ -114,8 +114,9 @@ async function openJobDetail(job){
       <div class="muted">หรือใช้ส่วนลดพิเศษ</div>
       <input id="manual_discount_name" class="input" placeholder="ชื่อโปร / ส่วนลดพิเศษ">
       <input id="manual_discount_amount" class="input" type="number" placeholder="จำนวนเงินส่วนลด (บาท)">
+      <input id="extra_fee" class="input" type="number" placeholder="ค่าเพิ่มหน้างาน">
       <input id="extra_fee" class="input" type="number" placeholder="เพิ่มหน้างาน">
-      <input id="travel_fee" class="input" type="number" placeholder="ค่าเดินทาง (บาท)">
+      <input id="travel_fee" class="input" type="number" placeholder="ค่าเดินทาง">
       <input id="next_visit" class="input" type="date">
 
       <button class="btn btn-green" onclick="finishJob('${job.job_id}','${job.member_id}')">จบงาน</button>
@@ -159,54 +160,50 @@ async function loadCouponsForStaff(memberId){
 }
 
 /* ================= FINISH JOB ================= */
-async function finishJob(jobId){
+async function finishJob(jobId, memberId){
   if(!confirm("ยืนยันจบงานนี้?")) return;
 
   document.getElementById("status").innerText = "กำลังจบงาน...";
 
   const payment_type = document.getElementById("payment_type").value;
-  const coupon_id = document.getElementById("coupon_id")?.value || "";
-  const manual_name = document.getElementById("manual_discount_name")?.value || "";
-  const manual_amount = document.getElementById("manual_discount_amount")?.value || "";
-  const extra_fee = document.getElementById("extra_fee")?.value || 0;
-  const next_visit = document.getElementById("next_visit")?.value || "";
-  const travel_fee = document.getElementById("travel_fee")?.value || 0;
+  const coupon_id = document.getElementById("coupon_id").value;
+  const manual_name = document.getElementById("manual_discount_name").value;
+  const manual_amount = document.getElementById("manual_discount_amount").value;
+  const extra_fee = document.getElementById("extra_fee").value;
+  const next_visit = document.getElementById("next_visit").value;
+  const travel_fee = document.getElementById("travel_fee").value;
 
   let url =
     `${API_URL}?action=finish_job&jobId=${jobId}` +
     `&payment_type=${encodeURIComponent(payment_type)}` +
-    `&travel_fee=${encodeURIComponent(travel_fee)}` +
     `&extra_fee=${encodeURIComponent(extra_fee)}` +
     `&next_visit=${encodeURIComponent(next_visit)}`;
+    `&travel_fee=${encodeURIComponent(travel_fee)}` + 
 
-  // ✅ เลือกคูปอง
   if(coupon_id){
     url += `&coupon_id=${encodeURIComponent(coupon_id)}`;
-  }
-  // ✅ ส่วนลดกรอกเอง
-  else if(manual_amount){
+  }else if(manual_amount){
     url +=
       `&coupon_name=${encodeURIComponent(manual_name || "ส่วนลดพิเศษ")}` +
       `&coupon_discount=${encodeURIComponent(manual_amount)}`;
   }
 
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
+  const res = await fetch(url);
+  const data = await res.json();
 
-    if(data.success){
-      alert("จบงานเรียบร้อย");
-      loadJobList();
-    }else{
-      alert("ผิดพลาด: " + data.error);
-      document.getElementById("status").innerText = "เกิดข้อผิดพลาด";
-    }
-  } catch(err){
-    alert("ระบบผิดพลาด: " + err.message);
-    document.getElementById("status").innerText = "เชื่อมต่อระบบไม่ได้";
+  if(data.success){
+    alert("จบงานเรียบร้อย");
+    loadJobList();
+  }else{
+    alert("ผิดพลาด: " + data.error);
+    document.getElementById("status").innerText = "เกิดข้อผิดพลาด";
   }
 }
 
+function formatDate(d){
+  const dt = new Date(d);
+  return `${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()+543}`;
+}
 
 main();
 </script>
