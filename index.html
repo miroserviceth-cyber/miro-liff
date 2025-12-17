@@ -7,44 +7,103 @@
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
 <style>
-body{font-family:system-ui;margin:0;background:#f4f6fb;color:#0b2b5a}
+body{
+  font-family:system-ui;
+  margin:0;
+  background:#f4f6fb;
+  color:#0b2b5a
+}
 .wrap{max-width:420px;margin:0 auto;padding:16px}
 
-/* ===== CARD ===== */
+/* ===== MEMBER CARD ===== */
 .card{
+  position:relative;
   background:linear-gradient(135deg,#0b63ce,#0a3f8f);
-  color:#fff;border-radius:20px;padding:18px;
-  box-shadow:0 10px 25px rgba(0,0,0,.15)
+  color:#fff;
+  border-radius:22px;
+  padding:18px;
+  box-shadow:0 12px 30px rgba(0,0,0,.18);
+  overflow:hidden
 }
-.card .name{font-size:14px;opacity:.9}
-.card .big{font-size:42px;font-weight:900;margin:6px 0}
-.card .sub{font-size:13px;opacity:.9}
-.card .row{display:flex;justify-content:space-between;margin-top:8px}
+.logo{
+  width:56px;
+  opacity:.95
+}
+.level{
+  font-size:13px;
+  opacity:.9;
+  margin-top:6px
+}
+.points{
+  font-size:44px;
+  font-weight:900;
+  margin:8px 0 2px
+}
+.expire{
+  font-size:13px;
+  opacity:.9
+}
+.card-footer{
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  opacity:.85;
+  margin-top:14px
+}
 
 /* ===== SECTION ===== */
 .sec{margin-top:18px}
 .h{font-weight:900;margin-bottom:8px}
-.box{
-  background:#fff;border-radius:14px;
-  padding:12px;box-shadow:0 4px 12px rgba(0,0,0,.06)
-}
-.muted{color:#6b7280;font-size:13px}
 
-/* ===== COUPON SMALL ===== */
+/* ===== COUPONS ===== */
+.coupon-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px
+}
 .coupon{
-  display:flex;justify-content:space-between;
-  align-items:center;margin-top:8px
+  background:#fff;
+  border-radius:14px;
+  padding:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,.06)
+}
+.coupon .name{
+  font-weight:800;
+  font-size:14px
+}
+.coupon .cost{
+  font-size:12px;
+  color:#6b7280;
+  margin-top:2px
 }
 .coupon button{
-  border:0;border-radius:999px;
-  padding:6px 12px;font-size:13px;
-  background:#16a34a;color:#fff;font-weight:700
+  margin-top:6px;
+  width:100%;
+  border:0;
+  border-radius:999px;
+  padding:6px;
+  font-size:12px;
+  font-weight:700;
+  background:#16a34a;
+  color:#fff
 }
 
-/* ===== COLLAPSE ===== */
-.toggle{cursor:pointer;font-weight:700}
+/* ===== HISTORY ===== */
+.toggle{cursor:pointer}
+.box{
+  background:#fff;
+  border-radius:14px;
+  padding:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.06)
+}
+.item{
+  border-top:1px solid #e5e7eb;
+  padding-top:8px;
+  margin-top:8px;
+  font-size:13px
+}
 .hide{display:none}
-.item{border-top:1px solid #e5e7eb;padding-top:8px;margin-top:8px}
+.muted{color:#6b7280;font-size:13px}
 </style>
 </head>
 
@@ -53,19 +112,21 @@ body{font-family:system-ui;margin:0;background:#f4f6fb;color:#0b2b5a}
 
 <!-- MEMBER CARD -->
 <div class="card">
-  <div class="name" id="memberName">สวัสดี</div>
-  <div class="big" id="redeemPts">0</div>
-  <div class="sub">แต้มแลกของ</div>
-  <div class="row">
-    <div class="sub">แต้มสะสม: <b id="levelPts">0</b></div>
-    <div class="sub" id="expireText">-</div>
+  <img src="https://i.ibb.co/whbnRx7c/D.jpg" class="logo">
+  <div class="level" id="levelText">ระดับ -</div>
+  <div class="points" id="redeemPts">0</div>
+  <div class="expire" id="expireText">-</div>
+
+  <div class="card-footer">
+    <div>แต้มสะสม <b id="levelPts">0</b></div>
+    <div>ใช้ไปแล้ว <b id="usedPts">0</b></div>
   </div>
 </div>
 
-<!-- COUPON REDEEM -->
+<!-- COUPON -->
 <div class="sec">
   <div class="h">แลกคูปอง</div>
-  <div id="redeemCatalog"></div>
+  <div class="coupon-grid" id="redeemCatalog"></div>
 </div>
 
 <!-- HISTORY -->
@@ -88,7 +149,6 @@ const API_URL="https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhIT
 function toggle(id){
   document.getElementById(id).classList.toggle("hide");
 }
-
 function thai(d){
   const x=new Date(d);
   return `${x.getDate()}/${x.getMonth()+1}/${x.getFullYear()+543}`;
@@ -100,25 +160,21 @@ async function main(){
 
   const p=await liff.getProfile();
   const m=await (await fetch(`${API_URL}?action=member&userId=${p.userId}&name=${p.displayName}`)).json();
-  document.getElementById("memberName").innerText=`คุณ ${m.name} • ${m.customer_type}`;
-
   const w=await (await fetch(`${API_URL}?action=wallet&memberId=${m.member_id}`)).json();
 
+  document.getElementById("levelText").innerText=`ระดับ ${m.level || "-"}`;
   document.getElementById("redeemPts").innerText=w.points.redeem;
   document.getElementById("levelPts").innerText=w.points.level;
 
-  // expire logic
-  const b=w.points_expire||[];
-  const pos=b.find(x=>x.points>0);
-  const neg=b.find(x=>x.points<0);
+  let used=0,expireInfo="-";
+  (w.points_expire||[]).forEach(b=>{
+    if(b.points<0) used+=Math.abs(b.points);
+    if(b.points>0) expireInfo=`${b.points} แต้ม หมด ${thai(b.expire)}`;
+  });
+  document.getElementById("usedPts").innerText=used;
+  document.getElementById("expireText").innerText=expireInfo;
 
-  if(pos){
-    document.getElementById("expireText").innerText=`หมดอายุ ${thai(pos.expire)}`;
-  }else if(neg){
-    document.getElementById("expireText").innerText=`ใช้แต้มไปแล้ว ${Math.abs(neg.points)} แต้ม`;
-  }
-
-  // coupon redeem
+  // coupon catalog
   const catalog=[
     {code:"C50",name:"ลด 50 บาท",cost:50},
     {code:"C100",name:"ลด 100 บาท",cost:100},
@@ -127,11 +183,14 @@ async function main(){
   const box=document.getElementById("redeemCatalog");
   catalog.forEach(c=>{
     const d=document.createElement("div");
-    d.className="box coupon";
-    d.innerHTML=`<div>${c.name}<div class="muted">ใช้ ${c.cost} แต้ม</div></div>
-      <button>แลก</button>`;
+    d.className="coupon";
+    d.innerHTML=`
+      <div class="name">${c.name}</div>
+      <div class="cost">ใช้ ${c.cost} แต้ม</div>
+      <button>แลก</button>
+    `;
     d.querySelector("button").onclick=async()=>{
-      if(!confirm("ยืนยันแลก?"))return;
+      if(!confirm("ยืนยันแลกคูปอง?"))return;
       await fetch(`${API_URL}?action=redeem_coupon&memberId=${m.member_id}&code=${c.code}`);
       location.reload();
     };
@@ -140,19 +199,14 @@ async function main(){
 
   // history
   const h=await (await fetch(`${API_URL}?action=history&memberId=${m.member_id}`)).json();
-  const s=document.getElementById("serviceHist");
   h.receipts.forEach(r=>{
-    s.innerHTML+=`<div class="item">
-      <b>${r.service}</b><br>
-      ยอด ${r.price} บาท • ${thai(r.receipt_date)}
+    serviceHist.innerHTML+=`<div class="item">
+      <b>${r.service}</b><br>ยอด ${r.price} บาท • ${thai(r.receipt_date)}
     </div>`;
   });
-
-  const c=document.getElementById("couponHist");
-  h.coupons_used.forEach(x=>{
-    c.innerHTML+=`<div class="item">
-      ${x.coupon_name}<br>
-      ใช้เมื่อ ${thai(x.used_date)}
+  h.coupons_used.forEach(c=>{
+    couponHist.innerHTML+=`<div class="item">
+      ${c.coupon_name} • ${thai(c.used_date)}
     </div>`;
   });
 }
