@@ -42,7 +42,7 @@ background:#0A1A3E;color:#fff;font-weight:800}
 let USER
 
 async function init(){
-  await liff.init({ liffId:"YOUR_LIFF_ID" })
+  await liff.init({ liffId:"2008701497-JZA86efs" })
   if(!liff.isLoggedIn()){ liff.login(); return }
   USER = await liff.getProfile()
 }
@@ -56,7 +56,7 @@ async function submit(){
     booking_date: date.value,
     booking_time: time.value
   }
-  await fetch("YOUR_WEBAPP_URL",{
+  await fetch("https://script.google.com/macros/s/AKfycbzmHnsk7fadmCwyXduQkPyhITIUI4deTeZI_ZGTW58bsUr_v2QakqLj0Vc3dFd1_dB6/exec?page=booking",{
     method:"POST",
     body:JSON.stringify(body)
   })
