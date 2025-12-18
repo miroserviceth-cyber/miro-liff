@@ -5,159 +5,592 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>MIRO | จองบริการ</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-
 <style>
-/* ===== CSS เดิมทั้งหมดของคุณ ===== */
-:root{
-  --bg:#f3f7ff;
-  --card:#ffffff;
-  --ink:#0b2b5a;
-  --muted:#5b6b80;
-  --line:#dbe7ff;
-  --primary:#1677ff;
-  --primary2:#0ea5e9;
-  --danger:#dc2626;
-  --ok:#0f766e;
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto;background:var(--bg);color:var(--ink)}
-.wrap{max-width:760px;margin:0 auto;padding:18px 16px 40px}
-.req{color:var(--danger);font-weight:800}
+  :root{
+    --bg:#f3f7ff;
+    --card:#ffffff;
+    --ink:#0b2b5a;
+    --muted:#5b6b80;
+    --line:#dbe7ff;
+    --primary:#1677ff;
+    --primary2:#0ea5e9;
+    --danger:#dc2626;
+    --ok:#0f766e;
+    --success-bg:#f0fdf4;
+    --success-border:#bbf7d0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:760px;margin:0 auto;padding:18px 16px 40px}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:14px 16px;border:1px solid var(--line);border-radius:16px;
+    background:linear-gradient(135deg,#ffffff, #f8fbff);
+    box-shadow:0 10px 24px rgba(15,23,42,.08);
+  }
+  .brand{display:flex;flex-direction:column;gap:2px}
+  .brand .h{font-weight:900;font-size:16px;letter-spacing:.2px}
+  .brand .s{color:var(--muted);font-size:12.5px}
+  .pill{
+    padding:8px 10px;border-radius:999px;border:1px solid var(--line);
+    background:#fff;color:#0f172a;font-size:12px;white-space:nowrap
+  }
 
-/* ===== เพิ่มสำหรับหน้า Thank You ===== */
-.thankyou{
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:18px;
-  padding:36px 24px;
-  text-align:center;
-  box-shadow:0 18px 40px rgba(15,23,42,.08);
-}
-.thankyou h2{
-  margin:0;
-  font-size:20px;
-  font-weight:900;
-}
-.thankyou p{
-  margin-top:12px;
-  color:var(--muted);
-  line-height:1.6;
-}
-.ticket{
-  margin:18px auto;
-  padding:14px;
-  border-radius:14px;
-  background:#f0f7ff;
-  border:1px dashed #99c2ff;
-  font-weight:900;
-  font-size:18px;
-  color:#0b2b5a;
-  letter-spacing:.5px;
-}
+  .card{
+    margin-top:14px;background:var(--card);
+    border:1px solid var(--line);border-radius:18px;
+    box-shadow:0 18px 40px rgba(15,23,42,.08);
+    overflow:hidden;
+  }
+  .head{
+    padding:18px 18px 14px;
+    background:linear-gradient(135deg, #eaf2ff, #f7fbff);
+    border-bottom:1px solid var(--line);
+  }
+  .head h1{margin:0;font-size:18px;font-weight:900}
+  .head p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.45}
+
+  .stepbar{display:flex;gap:8px;margin-top:12px}
+  .step{
+    flex:1;height:8px;border-radius:999px;background:#e6eefc;border:1px solid #dbe7ff;
+    overflow:hidden;
+  }
+  .step > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--primary2))}
+  .body{padding:18px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:720px){ .grid{grid-template-columns:1fr} }
+
+  label{display:block;font-size:12px;color:var(--muted);margin-top:12px}
+  input,select,textarea{
+    width:100%;margin-top:6px;padding:12px 12px;
+    border-radius:12px;border:1px solid #d6e3ff;
+    background:#fff;font-size:14px;outline:none;
+    transition:.15s border, .15s box-shadow;
+  }
+  input:focus,select:focus,textarea:focus{
+    border-color:#99c2ff;
+    box-shadow:0 0 0 4px rgba(22,119,255,.12);
+  }
+  textarea{min-height:96px;resize:vertical}
+  .req{color:var(--danger);font-weight:800}
+
+  .row{
+    display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px
+  }
+  .btn{
+    border:0;border-radius:14px;padding:12px 14px;font-weight:900;cursor:pointer;
+    background:var(--primary);color:#fff;min-width:150px;
+    box-shadow:0 12px 26px rgba(22,119,255,.25);
+    text-align:center;text-decoration:none;
+  }
+  .btn.secondary{
+    background:#fff;color:#0f172a;border:1px solid #dbe7ff;box-shadow:none
+  }
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  
+  /* Terms Box */
+  .terms-container {
+    margin-top: 15px;
+    padding: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    max-height: 180px;
+    overflow-y: auto;
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.6;
+  }
+  .consent-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .consent-check input {
+    width: 20px; height: 20px; margin-top: 0; cursor: pointer;
+  }
+
+  .note{
+    margin-top: 12px;border-radius:14px;padding:12px;border:1px solid #dbe7ff;background:#f8fbff;
+    color:var(--muted);font-size:13px;line-height:1.5
+  }
+  .alert{
+    margin-top:12px;border-radius:14px;padding:12px;border:1px solid;
+    font-size:13px;white-space:pre-wrap;line-height:1.5
+  }
+  .alert.err{background:#fff1f2;border-color:#fecaca;color:#991b1b}
+  .alert.ok{background:#ecfeff;border-color:#a5f3fc;color:#155e75}
+
+  .divider{height:1px;background:#e6eefc;margin:16px 0}
+  .summary{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px
+  }
+  .kv{border:1px solid #e6eefc;border-radius:12px;padding:10px;background:#fff}
+  .kv .k{font-size:12px;color:var(--muted)}
+  .kv .v{margin-top:4px;font-weight:800;color:#0f172a;white-space:pre-wrap}
+  
+  /* Success View */
+  .success-view {
+    text-align: center;
+    padding: 20px 10px;
+  }
+  .success-icon {
+    font-size: 50px;
+    margin-bottom: 15px;
+    display: block;
+  }
+  .booking-card {
+    background: #f0fdf4;
+    border: 2px dashed #22c55e;
+    padding: 20px;
+    border-radius: 16px;
+    margin: 20px 0;
+  }
+  .booking-id {
+    font-size: 24px;
+    font-weight: 900;
+    color: #166534;
+    display: block;
+    margin: 10px 0;
+    letter-spacing: 1px;
+  }
+
+  .foot{
+    padding:14px 18px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#fff
+  }
+  .small{font-size:12px;color:var(--muted)}
+  .shake{animation:shake .25s linear 0s 2}
+  @keyframes shake{0%{transform:translateX(0)}25%{transform:translateX(4px)}50%{transform:translateX(-4px)}75%{transform:translateX(3px)}100%{transform:translateX(0)}}
 </style>
 </head>
-
 <body>
-<div class="wrap" id="appRoot">
+<div class="wrap">
 
-  <!-- ===== ฟอร์มเดิมของคุณทั้งหมด ===== -->
-  <!-- (ไม่แก้ ไม่ลบ ตามที่คุณส่งมา) -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="h">MIRO Cleaning</div>
+      <div class="s">แบบฟอร์มขอรับบริการทำความสะอาด</div>
+    </div>
+    <div id="who" class="pill">กำลังตรวจสอบผู้ใช้งาน</div>
+  </div>
+
+  <div class="card">
+    <div id="form-head" class="head">
+      <h1>จองบริการ</h1>
+      <p>กรอกข้อมูลให้ครบถ้วนเพื่อให้ทีมงานประเมินงานและยืนยันคิวอย่างเป็นทางการ</p>
+
+      <div class="stepbar">
+        <div class="step"><i id="p1"></i></div>
+        <div class="step"><i id="p2"></i></div>
+        <div class="step"><i id="p3"></i></div>
+        <div class="step"><i id="p4"></i></div>
+      </div>
+    </div>
+
+    <div class="body">
+      <div id="msg"></div>
+
+      <div class="stepView" id="step1">
+        <div class="grid">
+          <div>
+            <label>ประเภทบริการ <span class="req">*</span></label>
+            <select id="service_type">
+              <option value="">เลือกบริการ</option>
+              <option>ทำความสะอาดบ้าน</option>
+              <option>ทำความสะอาดคอนโด/หอพัก/อพาร์ทเม้นท์</option>
+              <option>ทำความสะอาดสำนักงาน</option>
+              <option>Big Cleaning</option>
+              <option>ทำความสะอาดหลังรีโนเวท</option>
+              <option>Car Detailing</option>
+              <option>Motorcycle Detaliling</option>
+            </select>
+          </div>
+          <div>
+            <label>ประเภทสถานที่ <span class="req">*</span></label>
+            <select id="property_type">
+              <option value="">เลือกประเภท</option>
+              <option>บ้าน</option>
+              <option>คอนโด/หอพัก/อพาร์ทเม้นท์</option>
+              <option>ทาวน์โฮม</option>
+              <option>สำนักงาน</option>
+              <option>ร้านค้า</option>
+              <option>Car Detailing</option>
+              <option>Motorcycle Detaliling</option>
+              <option>อื่นๆ</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label>พื้นที่โดยประมาณ (ตร.ม.)</label>
+            <input id="area_sqm" inputmode="numeric" placeholder="เช่น 35">
+          </div>
+          <div>
+            <label>ชั้น / อาคาร</label>
+            <input id="floor" placeholder="เช่น ชั้น 12 อาคาร A">
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label>จำนวนห้องนอน</label>
+            <select id="bedrooms">
+              <option value="">ไม่ระบุ</option>
+              <option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+            </select>
+          </div>
+          <div>
+            <label>จำนวนห้องน้ำ</label>
+            <select id="bathrooms">
+              <option value="">ไม่ระบุ</option>
+              <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label>มีลิฟต์หรือไม่</label>
+            <select id="has_elevator">
+              <option value="">ไม่ระบุ</option>
+              <option>มี</option>
+              <option>ไม่มี</option>
+            </select>
+          </div>
+          <div>
+            <label>ที่จอดรถสำหรับทีมงาน</label>
+            <select id="parking">
+              <option value="">ไม่ระบุ</option>
+              <option>มี</option>
+              <option>ไม่มี</option>
+              <option>ต้องแลกบัตร</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="note">
+          ข้อมูลสถานที่ช่วยให้ทีมงานประเมินเวลาและอุปกรณ์ได้แม่นยำขึ้น หากไม่แน่ใจสามารถเว้นบางช่องได้
+        </div>
+      </div>
+
+      <div class="stepView" id="step2" style="display:none">
+        <div class="grid">
+          <div>
+            <label>วันที่ต้องการนัด <span class="req">*</span></label>
+            <input id="preferred_date" type="date">
+          </div>
+          <div>
+            <label>เวลาที่ต้องการ <span class="req">*</span></label>
+            <input id="preferred_time" type="time">
+          </div>
+        </div>
+
+        <label>ที่อยู่หน้างาน <span class="req">*</span></label>
+        <textarea id="address" placeholder="ระบุบ้าน/คอนโด/จุดสังเกต/เลขห้อง ให้ชัดเจน"></textarea>
+
+        <label>ลิงก์แผนที่ (Google Maps)</label>
+        <input id="map_url" placeholder="วางลิงก์แผนที่ (ถ้ามี)">
+
+        <label>รายละเอียดเพิ่มเติม</label>
+        <textarea id="notes" placeholder="เช่น มีสัตว์เลี้ยง, จุดคราบหนัก, ต้องการเน้นพื้นที่ใดเป็นพิเศษ"></textarea>
+
+        <div class="note">
+          หมายเหตุ: ตารางนี้เป็น “คำขอนัดหมาย” ทีมงานจะยืนยันเวลาอีกครั้งตามคิวงานจริง
+        </div>
+      </div>
+
+      <div class="stepView" id="step3" style="display:none">
+        <div class="grid">
+          <div>
+            <label>เบอร์โทรติดต่อ <span class="req">*</span></label>
+            <input id="phone" inputmode="tel" placeholder="เช่น 0812345678">
+          </div>
+          <div>
+            <label>อีเมล (ถ้ามี)</label>
+            <input id="email" inputmode="email" placeholder="name@email.com">
+          </div>
+        </div>
+
+        <label>ช่องทางติดต่อที่สะดวก</label>
+        <select id="contact_method">
+          <option>โทรศัพท์</option>
+          <option>LINE</option>
+          <option>อีเมล</option>
+        </select>
+
+        <div class="note">
+          ระบบจะบันทึกข้อมูลเพื่อให้ทีมงานติดต่อกลับ และจัดการคิวงานอย่างเป็นทางการ
+        </div>
+      </div>
+
+      <div class="stepView" id="step4" style="display:none">
+        <div class="note" style="background:#ffffff;border-color:#e6eefc">
+          ตรวจสอบข้อมูลก่อนส่งคำขอจอง
+        </div>
+
+        <div id="summary" class="summary"></div>
+
+        <div class="divider"></div>
+        
+        <label>ข้อตกลงและเงื่อนไขการให้บริการ <span class="req">*</span></label>
+        <div class="terms-container">
+            <strong>1. ขอบเขตงาน (Scope):</strong><br>
+            บริการครอบคลุมการ ปัด-กวาด-เช็ด-ถู-ดูดฝุ่น, ล้างห้องน้ำ, เช็ดกระจก(ภายใน), จัดเก็บที่นอน และทำความสะอาดครัว<br>
+            ❌ ไม่รวม: ซักรีดเสื้อผ้า, ล้างจานกองโต, ปีนเช็ดกระจกภายนอกที่เสี่ยงอันตราย, เคลื่อนย้ายเฟอร์นิเจอร์หนัก<br><br>
+            <strong>2. ทรัพย์สินและของมีค่า:</strong><br>
+            รบกวนลูกค้าเก็บของมีค่า เงินสด และเครื่องประดับให้มิดชิด ทางเราขอสงวนสิทธิ์ไม่รับผิดชอบกรณีสูญหายหากไม่มีหลักฐานยืนยันชัดเจน<br><br>
+            <strong>3. ความเสียหาย:</strong><br>
+            3.1 หากพบจุดชำรุดอยู่ก่อนแล้ว ทีมงานจะแจ้งให้ทราบก่อนเริ่มงาน<br>
+            3.2 หากเกิดความเสียหายจากการทำงาน รับประกันภายใน 24 ชม. ชดเชยตามจริงไม่เกิน 2 เท่าของค่าบริการ (สูงสุด 3,000 บาท)<br><br>
+            <strong>4. การเลื่อน/ยกเลิก:</strong><br>
+            แจ้งล่วงหน้าอย่างน้อย 24 ชั่วโมง หากทีมงานถึงหน้างานแล้วติดต่อไม่ได้เกิน 60 นาที ขออนุญาตยกเลิกงานและคิดค่าเดินทางตามจริง<br><br>
+            <strong>5. การถ่ายรีวิว:</strong><br>
+            ขออนุญาตถ่ายภาพ Before/After เพื่อลงโปรโมท โดยจะไม่ให้ติดใบหน้าลูกค้า เลขที่ห้อง หรือข้อมูลส่วนตัว (หากไม่สะดวกแจ้งได้ครับ)<br><br>
+            <em>*การส่งคำขอถือเป็นการยอมรับเงื่อนไขทั้งหมด</em>
+        </div>
+
+        <label class="consent-check">
+            <input type="checkbox" id="consent_check">
+            ยืนยันว่าได้อ่านและยอมรับเงื่อนไขการบริการ
+        </label>
+      </div>
+
+      <div class="stepView" id="step5" style="display:none">
+        <div class="success-view">
+            <span class="success-icon">✅</span>
+            <h2 style="color:var(--ok)">ส่งคำขอจองสำเร็จ!</h2>
+            <p>กรุณาแคปหน้าจอนี้ไว้เพื่อเป็นหลักฐาน</p>
+            
+            <div class="booking-card">
+                <span style="color:var(--muted); font-size:12px">เลขที่การจอง (Booking ID)</span>
+                <span id="final_booking_id" class="booking-id">---</span>
+                <span id="booking_date_label" style="font-size:14px; font-weight:bold"></span>
+            </div>
+
+            <p style="font-size:14px; color:var(--muted)">ทีมงานจะตรวจสอบคิวและติดต่อกลับผ่านช่องทางที่คุณเลือกโดยเร็วที่สุดครับ</p>
+            
+            <a href="javascript:void(0)" onclick="liff.closeWindow()" class="btn secondary" style="width:100%; margin-top:10px">ปิดหน้าต่าง</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="foot" id="navigation">
+      <div class="small" id="stepText">ขั้นตอน 1/4</div>
+      <div class="row">
+        <button class="btn secondary" id="btnBack" onclick="back()" disabled>ย้อนกลับ</button>
+        <button class="btn" id="btnNext" onclick="next()">ถัดไป</button>
+        <button class="btn" id="btnSend" onclick="send()" style="display:none">ส่งคำขอจอง</button>
+      </div>
+    </div>
+  </div>
 
 </div>
 
 <script>
-/* ===== CONFIG เดิม ===== */
-const API_URL = "https://script.google.com/macros/s/AKfycbw3LJtWX8R9bMIXNjhyBY3kOltxRferwjklRYop-G-hBNYc8JL8omHx8D1AEFi-i7mL/exec";
-const LIFF_ID = "2008701497-JZA86efs";
-const OA_CHAT_URL = "https://line.me/R/ti/p/@017lvaas";
+  // ====== CONFIGURATION ======
+  const API_URL = "https://script.google.com/macros/s/AKfycbw3LJtWX8R9bMIXNjhyBY3kOltxRferwjklRYop-G-hBNYc8JL8omHx8D1AEFi-i7mL/exec";
+  const LIFF_ID = "2008701497-JZA86efs";
 
-/* ===== send() แก้เฉพาะตอน success ===== */
-async function send(){
-  msg.innerHTML = "";
-  const err = validateStep(4) || (consent.value ? "" : "กรุณายืนยันเงื่อนไข");
-  if(err){
-    showErr(err);
-    return;
-  }
+  let PROFILE = null;
+  let step = 1;
 
-  const payload = {
-    line_user_id: PROFILE.userId,
-    display_name: PROFILE.displayName || "",
-    phone: phone.value.trim(),
-    email: email.value.trim(),
-    contact_method: contact_method.value.trim(),
-    service_type: service_type.value.trim(),
-    property_type: property_type.value.trim(),
-    area_sqm: area_sqm.value.trim(),
-    bedrooms: bedrooms.value.trim(),
-    bathrooms: bathrooms.value.trim(),
-    floor: floor.value.trim(),
-    has_elevator: has_elevator.value.trim(),
-    parking: parking.value.trim(),
-    preferred_date: preferred_date.value.trim(),
-    preferred_time: preferred_time.value.trim(),
-    address: address.value.trim(),
-    map_url: map_url.value.trim(),
-    notes: notes.value.trim(),
-    consent: consent.value.trim()
-  };
-
-  const q = new URLSearchParams({ action:"create_booking" });
-  for(const k in payload){
-    q.set(k, payload[k]);
-  }
-
-  try{
-    btnSend.disabled = true;
-    btnBack.disabled = true;
-
-    const data = await jsonp(API_URL + "?" + q.toString());
-
-    if(data && data.success){
-      // 🔥 แทนที่หน้าจอทั้งหมดเป็นหน้า Thank You
-      document.getElementById("appRoot").innerHTML = `
-        <div class="thankyou">
-          <h2>ขอบคุณสำหรับการจองบริการ</h2>
-          <p>
-            ระบบได้รับข้อมูลเรียบร้อยแล้ว<br>
-            เจ้าหน้าที่จะติดต่อกลับเพื่อยืนยันคิวโดยเร็ว
-          </p>
-
-          <div class="ticket">
-            เลขที่ใบจอง<br>
-            ${data.booking_id}
-          </div>
-
-          <p>
-            กรุณาแคปหน้าจอนี้เก็บไว้เป็นหลักฐานการจอง
-          </p>
-
-          <a href="${OA_CHAT_URL}" style="
-            display:inline-block;
-            margin-top:18px;
-            padding:12px 16px;
-            background:#1677ff;
-            color:#fff;
-            border-radius:14px;
-            text-decoration:none;
-            font-weight:900
-          ">
-            ติดต่อ LINE Official
-          </a>
-        </div>
-      `;
-    }else{
-      showErr((data && data.error) ? data.error : "ไม่สามารถบันทึกการจองได้");
-      btnSend.disabled = false;
-      btnBack.disabled = false;
+  function setProgress(){
+    const bars = [p1,p2,p3,p4];
+    
+    // หากอยู่หน้า 5 (จบงาน) ให้ซ่อน Header และ Footer
+    if(step === 5){
+        document.getElementById("form-head").style.display = "none";
+        document.getElementById("navigation").style.display = "none";
+        document.getElementById("step5").style.display = "block";
+        return;
     }
 
-  }catch(e){
-    showErr("การเชื่อมต่อไม่สำเร็จ: " + String(e.message||e));
-    btnSend.disabled = false;
-    btnBack.disabled = false;
+    for(let i=0;i<4;i++){
+      bars[i].style.width = (i < step ? "100%" : "0%");
+    }
+    stepText.textContent = "ขั้นตอน " + step + "/4";
+    btnBack.disabled = (step === 1);
+    btnNext.style.display = (step < 4) ? "inline-block" : "none";
+    btnSend.style.display = (step === 4) ? "inline-block" : "none";
+
+    for(let i=1;i<=4;i++){
+      document.getElementById("step"+i).style.display = (i===step) ? "block" : "none";
+    }
   }
-}
+
+  async function init(){
+    try{
+      await liff.init({ liffId: LIFF_ID });
+      if(!liff.isLoggedIn()){ liff.login(); return; }
+      PROFILE = await liff.getProfile();
+      who.textContent = "ผู้ใช้งาน: " + (PROFILE.displayName || "-");
+      setDefaults();
+      setProgress();
+    }catch(e){
+      who.textContent = "ไม่สามารถเริ่มระบบ LIFF ได้";
+      showErr("Error: " + String(e));
+    }
+  }
+
+  function setDefaults(){
+    const d = new Date();
+    d.setDate(d.getDate()+1);
+    preferred_date.value = d.toISOString().slice(0,10);
+    preferred_time.value = "10:00";
+    contact_method.value = "โทรศัพท์";
+  }
+
+  function showErr(text){
+    msg.innerHTML = '<div class="alert err">' + esc(text) + '</div>';
+    window.scrollTo(0,0);
+  }
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+  }
+
+  function next(){
+    msg.innerHTML = "";
+    const err = validateStep(step);
+    if(err){
+      showErr(err);
+      document.querySelector(".card").classList.add("shake");
+      setTimeout(()=>document.querySelector(".card").classList.remove("shake"), 450);
+      return;
+    }
+    if(step < 4) step++;
+    if(step === 4) renderSummary();
+    setProgress();
+  }
+
+  function back(){
+    msg.innerHTML = "";
+    if(step > 1) step--;
+    setProgress();
+  }
+
+  function validateStep(s){
+    if(s === 1){
+      if(!service_type.value.trim()) return "กรุณาเลือกประเภทบริการ";
+      if(!property_type.value.trim()) return "กรุณาเลือกประเภทสถานที่";
+      return "";
+    }
+    if(s === 2){
+      if(!preferred_date.value.trim()) return "กรุณาเลือกวันที่ต้องการนัด";
+      if(!preferred_time.value.trim()) return "กรุณาเลือกเวลาที่ต้องการ";
+      if(!address.value.trim()) return "กรุณากรอกที่อยู่หน้างาน";
+      return "";
+    }
+    if(s === 3){
+      const ph = phone.value.replace(/\D/g,'');
+      if(!ph) return "กรุณากรอกเบอร์โทรติดต่อ";
+      if(!/^0\d{8,9}$/.test(ph)) return "รูปแบบเบอร์โทรไม่ถูกต้อง";
+      return "";
+    }
+    return "";
+  }
+
+  function renderSummary(){
+    const items = [
+      ["บริการ", service_type.value],
+      ["สถานที่", property_type.value],
+      ["พื้นที่", area_sqm.value ? (area_sqm.value + " ตร.ม.") : "-"],
+      ["ห้องนอน/น้ำ", (bedrooms.value||"-") + " / " + (bathrooms.value||"-")],
+      ["วัน-เวลา", preferred_date.value + " " + preferred_time.value],
+      ["เบอร์โทร", phone.value],
+      ["ที่อยู่", address.value]
+    ];
+
+    summary.innerHTML = items.map(([k,v]) => `
+      <div class="kv">
+        <div class="k">${esc(k)}</div>
+        <div class="v">${esc(v)}</div>
+      </div>
+    `).join("");
+  }
+
+  function jsonp(url){
+    return new Promise((resolve,reject)=>{
+      const cb = "cb_" + Math.random().toString(16).slice(2);
+      window[cb] = (data)=>{
+        resolve(data);
+        cleanup();
+      };
+      const s = document.createElement("script");
+      s.src = url + (url.includes("?") ? "&" : "?") + "callback=" + cb;
+      s.onerror = ()=>{ reject(new Error("network error")); cleanup(); };
+      document.body.appendChild(s);
+      function cleanup(){ delete window[cb]; s.remove(); }
+    });
+  }
+
+  async function send(){
+    msg.innerHTML = "";
+    
+    // ตรวจสอบ Checkbox เงื่อนไข
+    if(!document.getElementById("consent_check").checked){
+        showErr("กรุณาติ๊กยอมรับเงื่อนไขการให้บริการก่อนส่งข้อมูล");
+        return;
+    }
+
+    const payload = {
+      line_user_id: PROFILE.userId,
+      display_name: PROFILE.displayName || "",
+      phone: phone.value.trim(),
+      email: email.value.trim(),
+      contact_method: contact_method.value.trim(),
+      service_type: service_type.value.trim(),
+      property_type: property_type.value.trim(),
+      area_sqm: area_sqm.value.trim(),
+      bedrooms: bedrooms.value.trim(),
+      bathrooms: bathrooms.value.trim(),
+      floor: floor.value.trim(),
+      has_elevator: has_elevator.value.trim(),
+      parking: parking.value.trim(),
+      preferred_date: preferred_date.value.trim(),
+      preferred_time: preferred_time.value.trim(),
+      address: address.value.trim(),
+      map_url: map_url.value.trim(),
+      notes: notes.value.trim(),
+      consent: "ยอมรับเงื่อนไข"
+    };
+
+    const q = new URLSearchParams({ action:"create_booking" });
+    for(const k in payload) q.set(k, payload[k]);
+
+    try{
+      btnSend.disabled = true;
+      btnSend.textContent = "กำลังส่งข้อมูล...";
+
+      const data = await jsonp(API_URL + "?" + q.toString());
+
+      if(data && data.success){
+        // เปลี่ยนไปหน้าขอบคุณ
+        document.getElementById("final_booking_id").textContent = data.booking_id;
+        document.getElementById("booking_date_label").textContent = "นัดหมายวันที่: " + preferred_date.value;
+        step = 5;
+        setProgress();
+        window.scrollTo(0,0);
+      }else{
+        showErr((data && data.error) ? data.error : "ไม่สามารถบันทึกการจองได้");
+        btnSend.disabled = false;
+        btnSend.textContent = "ส่งคำขอจอง";
+      }
+    }catch(e){
+      showErr("การเชื่อมต่อไม่สำเร็จ: " + String(e.message||e));
+      btnSend.disabled = false;
+      btnSend.textContent = "ส่งคำขอจอง";
+    }
+  }
+
+  init();
 </script>
 </body>
 </html>
