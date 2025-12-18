@@ -1,135 +1,174 @@
 <!doctype html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>โปรโมชั่น</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <style>
-    :root{
-      --bg:#eaf4ff;
-      --card:#ffffff;
-      --ink:#0b2b5a;
-      --muted:#47627a;
-      --line:#cfe8ff;
-      --primary:#0284c7;
-    }
-    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto;background:var(--bg);color:var(--ink)}
-    .wrap{max-width:520px;margin:0 auto;padding:16px}
-    .head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px}
-    .title{font-size:18px;font-weight:900;margin:0}
-    .sub{font-size:13px;color:var(--muted);margin-top:6px}
-    .list{display:grid;grid-template-columns:1fr;gap:12px}
-    .card{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 10px 22px rgba(0,0,0,.08);border:1px solid var(--line);cursor:pointer}
-    .img{width:100%;height:190px;object-fit:cover;background:#dbeafe}
-    .pad{padding:14px}
-    .ctitle{font-weight:900}
-    .cdesc{margin-top:6px;font-size:13px;line-height:1.5;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-    .empty{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;color:var(--muted)}
-    .err{background:#fff;border:1px solid #fecaca;border-radius:16px;padding:16px;color:#991b1b}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MIRO | โปรโมชั่น</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+  :root{
+    --bg:#f3f7ff;
+    --card:#ffffff;
+    --ink:#0b2b5a;
+    --muted:#5b6b80;
+    --line:#dbe7ff;
+    --primary:#1677ff;
+    --primary2:#0ea5e9;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:980px;margin:0 auto;padding:18px 16px 40px}
+  .top{
+    display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;
+    padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:#fff;
+    box-shadow:0 10px 24px rgba(15,23,42,.08);
+  }
+  .h{font-weight:900;font-size:18px;margin:0}
+  .s{color:var(--muted);font-size:13px;margin-top:6px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+  @media (max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:640px){.grid{grid-template-columns:1fr}}
 
-    /* modal */
-    .back{position:fixed;inset:0;background:rgba(2,6,23,.55);display:none;align-items:flex-end;justify-content:center;padding:16px}
-    .modal{width:100%;max-width:520px;background:#fff;border-radius:18px 18px 0 0;max-height:78vh;overflow:auto}
-    .mhead{display:flex;justify-content:space-between;align-items:center;padding:14px;border-bottom:1px solid var(--line)}
-    .mx{font-weight:900;cursor:pointer;color:var(--primary)}
-    .mbody{padding:14px}
-    .mimg{width:100%;height:220px;object-fit:cover;border-radius:14px;background:#dbeafe}
-    .mtitle{margin-top:12px;font-weight:900;font-size:16px}
-    .mdesc{margin-top:8px;font-size:14px;line-height:1.6;color:#0f172a;white-space:pre-wrap}
-    .btn{margin-top:14px;width:100%;padding:12px 14px;border-radius:14px;border:0;background:var(--primary);color:#fff;font-weight:900;cursor:pointer}
-  </style>
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    box-shadow:0 18px 40px rgba(15,23,42,.08);cursor:pointer;transition:.15s transform;
+  }
+  .card:hover{transform:translateY(-2px)}
+  .img{width:100%;height:170px;object-fit:cover;background:#eaf2ff}
+  .pad{padding:14px}
+  .title{font-weight:900}
+  .short{margin-top:6px;color:var(--muted);font-size:13px;line-height:1.45}
+
+  .empty,.err{
+    margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;color:var(--muted)
+  }
+  .err{border-color:#fecaca;color:#991b1b}
+
+  .back{position:fixed;inset:0;background:rgba(2,6,23,.55);display:none;align-items:flex-end;justify-content:center;padding:16px}
+  .modal{width:100%;max-width:720px;background:#fff;border-radius:18px 18px 0 0;max-height:82vh;overflow:auto}
+  .mhead{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .mx{font-weight:900;color:var(--primary);cursor:pointer}
+  .mbody{padding:16px}
+  .mimg{width:100%;height:240px;object-fit:cover;border-radius:14px;background:#eaf2ff}
+  .mt{margin-top:12px;font-weight:900;font-size:16px}
+  .md{margin-top:8px;color:#0f172a;line-height:1.6;white-space:pre-wrap}
+  .btn{
+    margin-top:14px;width:100%;padding:12px 14px;border-radius:14px;border:0;
+    background:linear-gradient(90deg,var(--primary),var(--primary2));
+    color:#fff;font-weight:900;cursor:pointer
+  }
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="head">
-      <div>
-        <h1 class="title">โปรโมชั่น</h1>
-        <div class="sub">โปรที่เปิดใช้งานจะแสดงอัตโนมัติ</div>
-      </div>
-    </div>
-
-    <div id="msg"></div>
-    <div id="list" class="list"></div>
-  </div>
-
-  <div id="back" class="back" onclick="hideModal()">
-    <div class="modal" onclick="event.stopPropagation()">
-      <div class="mhead">
-        <div style="font-weight:900">รายละเอียดโปรโมชัน</div>
-        <div class="mx" onclick="hideModal()">ปิด</div>
-      </div>
-      <div class="mbody">
-        <img id="mimg" class="mimg" src="" alt="">
-        <div id="mtitle" class="mtitle"></div>
-        <div id="mdesc" class="mdesc"></div>
-        <button class="btn" onclick="hideModal()">กลับ</button>
-      </div>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <div class="h">โปรโมชั่น</div>
+      <div class="s">โปรที่เปิดใช้งานจะแสดงอัตโนมัติจากระบบหลังบ้าน</div>
     </div>
   </div>
+
+  <div id="msg"></div>
+  <div id="list" class="grid"></div>
+</div>
+
+<div id="back" class="back" onclick="hideModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mhead">
+      <div style="font-weight:900">รายละเอียดโปรโมชัน</div>
+      <div class="mx" onclick="hideModal()">ปิด</div>
+    </div>
+    <div class="mbody">
+      <img id="mimg" class="mimg" src="" alt="">
+      <div id="mtitle" class="mt"></div>
+      <div id="mdesc" class="md"></div>
+      <button class="btn" onclick="chatOA()">ทักแชทเจ้าหน้าที่</button>
+    </div>
+  </div>
+</div>
 
 <script>
-  const WEBAPP = location.href.split('?')[0]; // exec url เดียวกัน
+  const API_URL = "https://script.google.com/macros/s/AKfycbw3LJtWX8R9bMIXNjhyBY3kOltxRferwjklRYop-G-hBNYc8JL8omHx8D1AEFi-i7mL/exec";
   const LIFF_ID = "2008701497-TNWE13lt";
 
-  let promos = [];
+  let PROMOS = [];
+  let OA = "https://line.me/R/ti/p/@YOUR_OA_ID";
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+  }
+
+  function jsonp(url){
+    return new Promise((resolve,reject)=>{
+      const cb = "cb_" + Math.random().toString(16).slice(2);
+      window[cb] = (data)=>{ resolve(data); cleanup(); };
+      const s = document.createElement("script");
+      s.src = url + (url.includes("?") ? "&" : "?") + "callback=" + cb;
+      s.onerror = ()=>{ reject(new Error("network error")); cleanup(); };
+      document.body.appendChild(s);
+      function cleanup(){ delete window[cb]; s.remove(); }
+    });
+  }
 
   async function init(){
-    await liff.init({ liffId: LIFF_ID });
-    if(!liff.isLoggedIn()){ liff.login(); return; }
-    await loadPromos();
+    try{
+      await liff.init({ liffId: LIFF_ID });
+      if(!liff.isLoggedIn()){ liff.login(); return; }
+      await loadPromos();
+    }catch(e){
+      msg.innerHTML = '<div class="err">ไม่สามารถเริ่ม LIFF ได้: '+esc(String(e))+'</div>';
+    }
   }
 
   async function loadPromos(){
-    const list = document.getElementById('list');
-    const msg = document.getElementById('msg');
-    list.innerHTML = '';
-    msg.innerHTML = '';
+    msg.innerHTML = "";
+    list.innerHTML = "";
 
     try{
-      const url = WEBAPP + '?action=promo_list';
-      const r = await fetch(url, { method:'GET' });
-      const data = await r.json();
-
-      if(Array.isArray(data) && data.length){
-        promos = data;
-        data.forEach((p, idx)=>{
-          const el = document.createElement('div');
-          el.className = 'card';
-          el.onclick = ()=>openModal(idx);
-
-          const img = p.image_url ? `<img class="img" src="${escapeHtml(p.image_url)}" onerror="this.style.display='none'">` : '';
-          el.innerHTML = `
-            ${img}
-            <div class="pad">
-              <div class="ctitle">${escapeHtml(p.title || '')}</div>
-              <div class="cdesc">${escapeHtml(p.description || '')}</div>
-            </div>
-          `;
-          list.appendChild(el);
-        });
-      }else{
-        msg.innerHTML = `<div class="empty">ขณะนี้ยังไม่มีโปรโมชันที่เปิดใช้งาน</div>`;
+      const data = await jsonp(API_URL + "?action=promo_list");
+      if(data && data.error){
+        msg.innerHTML = '<div class="err">โหลดโปรโมชันไม่สำเร็จ: '+esc(data.error)+'</div>';
+        return;
       }
+      if(!Array.isArray(data) || !data.length){
+        msg.innerHTML = '<div class="empty">ขณะนี้ยังไม่มีโปรโมชันที่เปิดใช้งาน</div>';
+        return;
+      }
+
+      PROMOS = data;
+      OA = data[0].oa_chat_url || OA;
+
+      data.forEach((p,idx)=>{
+        const el = document.createElement("div");
+        el.className = "card";
+        el.onclick = ()=>openModal(idx);
+        el.innerHTML = `
+          ${p.image_url ? `<img class="img" src="${esc(p.image_url)}" onerror="this.style.display='none'">` : `<div class="img"></div>`}
+          <div class="pad">
+            <div class="title">${esc(p.title||"")}</div>
+            <div class="short">${esc(p.short||p.description||"")}</div>
+          </div>
+        `;
+        list.appendChild(el);
+      });
+
     }catch(e){
-      msg.innerHTML = `<div class="err">โหลดโปรโมชันไม่สำเร็จ: ${escapeHtml(String(e))}</div>`;
+      msg.innerHTML = '<div class="err">โหลดโปรโมชันไม่สำเร็จ: '+esc(String(e.message||e))+'</div>';
     }
   }
 
-  function openModal(idx){
-    const p = promos[idx];
-    document.getElementById('mimg').src = p.image_url || '';
-    document.getElementById('mtitle').textContent = p.title || '';
-    document.getElementById('mdesc').textContent = p.description || '';
-    document.getElementById('back').style.display = 'flex';
+  function openModal(i){
+    const p = PROMOS[i];
+    mimg.src = p.image_url || "";
+    mtitle.textContent = p.title || "";
+    mdesc.textContent = p.description || "";
+    back.style.display = "flex";
   }
+  function hideModal(){ back.style.display = "none"; }
 
-  function hideModal(){
-    document.getElementById('back').style.display = 'none';
-  }
-
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+  function chatOA(){
+    // เปิดแชท OA
+    liff.openWindow({ url: OA, external: true });
   }
 
   init();
